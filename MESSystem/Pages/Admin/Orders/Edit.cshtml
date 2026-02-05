@@ -111,49 +111,99 @@
                     </div>
                 </div>
 
-                <!-- 품목 정보 (읽기 전용) -->
+                <!-- 품목 정보 -->
                 <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">품목 정보 (읽기 전용)</h5>
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">품목 정보</h5>
+                        <button type="button" class="btn btn-sm btn-danger" id="deleteSelectedBtn" disabled>
+                            <i class="bi bi-trash"></i> 선택 삭제
+                        </button>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
+                        <div class="alert alert-warning">
                             <i class="bi bi-info-circle"></i>
-                            품목 변경이 필요한 경우 새 주문서를 작성해주세요.
+                            <strong>수정 가능 항목:</strong> 체크박스로 품목 선택/삭제, 수량/단가/규격/비고 수정, 디자인 파일 교체 가능
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-bordered" id="itemsTable">
                                 <thead class="table-light">
                                     <tr>
-                                        <th width="50">#</th>
-                                        <th width="100">품목코드</th>
-                                        <th>품목명</th>
-                                        <th width="150">규격</th>
+                                        <th width="40">
+                                            <input type="checkbox" class="form-check-input" id="selectAll" title="전체 선택">
+                                        </th>
+                                        <th width="40">#</th>
+                                        <th width="150">품목코드</th>
+                                        <th width="180">품목명</th>
+                                        <th width="120">규격</th>
                                         <th width="80">수량</th>
+                                        <th width="100">단가</th>
                                         <th width="200">디자인파일</th>
                                         <th width="150">비고</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="itemsTableBody">
                                     @foreach (var item in Model.Order.OrderItems.OrderBy(i => i.LineNumber))
                                     {
-                                        <tr>
-                                            <td class="text-center">@item.LineNumber</td>
-                                            <td><code>@item.Product.Code</code></td>
-                                            <td>@item.Product.Name</td>
-                                            <td>@(item.Spec ?? "-")</td>
-                                            <td class="text-end">@item.Quantity</td>
+                                        var itemIndex = item.LineNumber - 1;
+                                        <tr class="item-row" data-order-item-id="@item.Id">
+                                            <td class="text-center">
+                                                <input type="checkbox" class="form-check-input item-checkbox">
+                                            </td>
+                                            <td class="text-center row-number">@item.LineNumber</td>
+                                            <td>
+                                                <code>@item.Product.Code</code>
+                                                <input type="hidden" name="Input.Items[@itemIndex].OrderItemId" value="@item.Id" />
+                                                <input type="hidden" name="Input.Items[@itemIndex].ProductId" value="@item.ProductId" class="product-id-input" />
+                                            </td>
+                                            <td>
+                                                <strong>@item.Product.Name</strong>
+                                                <br>
+                                                <small class="text-muted">@item.Product.Category.Name</small>
+                                            </td>
+                                            <td>
+                                                <input type="text" 
+                                                       name="Input.Items[@itemIndex].Spec" 
+                                                       class="form-control form-control-sm spec-input" 
+                                                       value="@item.Spec"
+                                                       placeholder="예: 1000x2000mm" />
+                                            </td>
+                                            <td>
+                                                <input type="number" 
+                                                       name="Input.Items[@itemIndex].Quantity" 
+                                                       class="form-control form-control-sm" 
+                                                       value="@item.Quantity"
+                                                       min="1" 
+                                                       required />
+                                            </td>
+                                            <td>
+                                                <input type="number" 
+                                                       name="Input.Items[@itemIndex].UnitPrice" 
+                                                       class="form-control form-control-sm" 
+                                                       value="@item.UnitPrice"
+                                                       min="0" 
+                                                       placeholder="0" />
+                                            </td>
                                             <td>
                                                 @if (!string.IsNullOrEmpty(item.DesignFileName))
                                                 {
-                                                    <small class="text-primary">@item.DesignFileName</small>
+                                                    <div class="mb-1">
+                                                        <small class="text-primary d-block">
+                                                            <i class="bi bi-file-earmark"></i> @item.DesignFileName
+                                                        </small>
+                                                        <small class="text-muted">새 파일로 교체:</small>
+                                                    </div>
                                                 }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
+                                                <input type="file" 
+                                                       name="Input.Items[@itemIndex].DesignFile" 
+                                                       class="form-control form-control-sm" 
+                                                       accept=".ai,.psd,.pdf,.eps,.jpg,.png" />
                                             </td>
-                                            <td>@(item.Remark ?? "-")</td>
+                                            <td>
+                                                <textarea name="Input.Items[@itemIndex].Remark" 
+                                                          class="form-control form-control-sm" 
+                                                          rows="2"
+                                                          placeholder="비고">@item.Remark</textarea>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
@@ -180,41 +230,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        // 페이지 로드 시 출고방법에 따라 필드 표시
-        document.addEventListener('DOMContentLoaded', function() {
-            updateFieldsVisibility();
-        });
-
-        // 출고방법 변경 시
-        document.getElementById('shippingMethod').addEventListener('change', function() {
-            updateFieldsVisibility();
-        });
-
-        function updateFieldsVisibility() {
-            const method = document.getElementById('shippingMethod').value;
-            const paymentMethodGroup = document.getElementById('paymentMethodGroup');
-            const shippingTimeGroup = document.getElementById('shippingTimeGroup');
-            const paymentRequired = document.getElementById('paymentRequired');
-            const timeRequired = document.getElementById('timeRequired');
-
-            // 결제방법 표시/숨김
-            if (['대신택배', '대신화물', '한진택배', '퀵', '용차'].includes(method)) {
-                paymentMethodGroup.style.display = 'block';
-                paymentRequired.style.display = 'inline';
-            } else {
-                paymentMethodGroup.style.display = 'none';
-                paymentRequired.style.display = 'none';
-            }
-
-            // 출고시간 표시/숨김
-            if (['퀵', '용차', '방문수령', '직접배송'].includes(method)) {
-                shippingTimeGroup.style.display = 'block';
-                timeRequired.style.display = 'inline';
-            } else {
-                shippingTimeGroup.style.display = 'none';
-                timeRequired.style.display = 'none';
-            }
-        }
-    </script>
+    <script src="~/js/order-edit.js"></script>
 }
