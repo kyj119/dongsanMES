@@ -117,7 +117,7 @@ namespace MESSystem.Pages.Admin.Orders
                     Spec = item.Spec,
                     Description = item.Description,
                     Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
+                    UnitPrice = item.UnitPrice ?? 0,
                     Remark = item.Remark
                 }).ToList()
             };
