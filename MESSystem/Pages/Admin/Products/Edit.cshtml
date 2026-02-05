@@ -1,0 +1,108 @@
+@page
+@model MESSystem.Pages.Admin.Products.EditModel
+@{
+    ViewData["Title"] = "품목 수정";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0"><i class="bi bi-pencil"></i> 품목 수정</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <input type="hidden" asp-for="Input.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted">등록일</label>
+                            <input type="text" class="form-control" value="@Model.Input.CreatedAt.ToString("yyyy-MM-dd HH:mm")" disabled />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.Code" class="form-label">
+                                    품목코드 <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Input.Code" class="form-control" />
+                                <span asp-validation-for="Input.Code" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.Name" class="form-label">
+                                    품목명 <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Input.Name" class="form-control" />
+                                <span asp-validation-for="Input.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.CategoryId" class="form-label">
+                                분류 <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="Input.CategoryId" class="form-select">
+                                <option value="">-- 분류 선택 --</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name (순서: @category.CardOrder)</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Input.CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.DefaultSpec" class="form-label">
+                                기본규격
+                            </label>
+                            <input asp-for="Input.DefaultSpec" class="form-control" placeholder="예: 1000x2000mm" />
+                            <div class="form-text">
+                                주문서 작성 시 기본값으로 사용됩니다. (선택 입력)
+                            </div>
+                            <span asp-validation-for="Input.DefaultSpec" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="Input.IsActive" class="form-check-label">
+                                    활성 상태
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                비활성화하면 주문서 작성 시 이 품목이 표시되지 않습니다.
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> 
+                            <strong>주의:</strong> 이미 생성된 주문서/카드의 품목 정보는 자동으로 변경되지 않습니다.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> 취소
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> 수정 저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mt-3">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    입력 내용을 확인해주세요.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,230 @@
+@page
+@model MESSystem.Pages.Admin.Products.IndexModel
+@{
+    ViewData["Title"] = "품목 관리";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-box-seam"></i> 품목 관리</h2>
+            <p class="text-muted">주문서에 사용할 품목을 관리합니다.</p>
+        </div>
+        <div class="col-auto">
+            <a asp-page="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 새 품목 등록
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 필터 -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">분류</label>
+                    <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                        <option value="">전체</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">
+                                @category.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">검색</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="품목코드 또는 품목명" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="bi bi-search"></i> 검색
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <a asp-page="Index" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-counterclockwise"></i> 초기화
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 품목 목록 -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="100">품목코드</th>
+                            <th>품목명</th>
+                            <th width="120">분류</th>
+                            <th>기본규격</th>
+                            <th width="100">상태</th>
+                            <th width="180">등록일</th>
+                            <th width="150">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Products.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.CategoryId.HasValue)
+                                    {
+                                        <span>검색 결과가 없습니다.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>등록된 품목이 없습니다.</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var product in Model.Products)
+                            {
+                                <tr class="@(product.IsDeleted ? "table-secondary text-muted" : "")">
+                                    <td>
+                                        <code>@product.Code</code>
+                                    </td>
+                                    <td>
+                                        <strong>@product.Name</strong>
+                                        @if (product.IsDeleted)
+                                        {
+                                            <span class="badge bg-secondary ms-2">삭제됨</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">@product.Category?.Name</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(product.DefaultSpec))
+                                        {
+                                            <span class="text-muted">@product.DefaultSpec</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (product.IsActive)
+                                        {
+                                            <span class="badge bg-success">활성</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">비활성</span>
+                                        }
+                                    </td>
+                                    <td>@product.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        @if (!product.IsDeleted)
+                                        {
+                                            <a asp-page="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil"></i> 수정
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal" 
+                                                    data-product-id="@product.Id" 
+                                                    data-product-code="@product.Code"
+                                                    data-product-name="@product.Name">
+                                                <i class="bi bi-trash"></i> 삭제
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-page-handler="Restore" asp-route-id="@product.Id" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-arrow-counterclockwise"></i> 복구
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <p class="text-muted">
+            <i class="bi bi-info-circle"></i> 
+            총 <strong>@Model.Products.Count</strong>개의 품목이 있습니다.
+        </p>
+    </div>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">품목 삭제 확인</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>정말로 다음 품목을 삭제하시겠습니까?</p>
+                <div class="alert alert-light">
+                    <strong>품목코드:</strong> <code id="deleteProductCode"></code><br>
+                    <strong>품목명:</strong> <span id="deleteProductName"></span>
+                </div>
+                <p class="text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    삭제된 품목은 목록에 표시되지만 비활성 상태가 됩니다. 복구할 수 있습니다.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" asp-page-handler="Delete" id="deleteForm">
+                    <input type="hidden" name="id" id="deleteProductId" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-danger">삭제</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 삭제 모달 데이터 설정
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var productId = button.getAttribute('data-product-id');
+            var productCode = button.getAttribute('data-product-code');
+            var productName = button.getAttribute('data-product-name');
+            
+            document.getElementById('deleteProductId').value = productId;
+            document.getElementById('deleteProductCode').textContent = productCode;
+            document.getElementById('deleteProductName').textContent = productName;
+        });
+
+        // 성공 메시지 자동 사라짐
+        setTimeout(function() {
+            var alert = document.querySelector('.alert-success');
+            if (alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
+}

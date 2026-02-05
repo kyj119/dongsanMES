@@ -1,0 +1,166 @@
+@page
+@model MESSystem.Pages.Admin.Categories.IndexModel
+@{
+    ViewData["Title"] = "분류 관리";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-tags"></i> 분류 관리</h2>
+            <p class="text-muted">카드 분류를 관리합니다. (예: 태극기, 현수막, 간판)</p>
+        </div>
+        <div class="col-auto">
+            <a asp-page="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 새 분류 등록
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="80">순서</th>
+                            <th>분류명</th>
+                            <th width="100">카드 순서</th>
+                            <th width="100">상태</th>
+                            <th width="180">등록일</th>
+                            <th width="150">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Categories.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    등록된 분류가 없습니다.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var category in Model.Categories)
+                            {
+                                <tr class="@(category.IsDeleted ? "table-secondary text-muted" : "")">
+                                    <td>@category.Id</td>
+                                    <td>
+                                        <strong>@category.Name</strong>
+                                        @if (category.IsDeleted)
+                                        {
+                                            <span class="badge bg-secondary ms-2">삭제됨</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">@category.CardOrder</span>
+                                    </td>
+                                    <td>
+                                        @if (category.IsActive)
+                                        {
+                                            <span class="badge bg-success">활성</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">비활성</span>
+                                        }
+                                    </td>
+                                    <td>@category.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        @if (!category.IsDeleted)
+                                        {
+                                            <a asp-page="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil"></i> 수정
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal" 
+                                                    data-category-id="@category.Id" 
+                                                    data-category-name="@category.Name">
+                                                <i class="bi bi-trash"></i> 삭제
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-page-handler="Restore" asp-route-id="@category.Id" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-arrow-counterclockwise"></i> 복구
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <p class="text-muted">
+            <i class="bi bi-info-circle"></i> 
+            카드 순서는 주문서 저장 시 카드가 생성되는 순서입니다. (1=태극기, 2=현수막, 3=간판)
+        </p>
+    </div>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">분류 삭제 확인</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>정말로 "<strong id="deleteCategoryName"></strong>" 분류를 삭제하시겠습니까?</p>
+                <p class="text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    삭제된 분류는 목록에 표시되지만 비활성 상태가 됩니다. 복구할 수 있습니다.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" asp-page-handler="Delete" id="deleteForm">
+                    <input type="hidden" name="id" id="deleteCategoryId" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-danger">삭제</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 삭제 모달 데이터 설정
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var categoryId = button.getAttribute('data-category-id');
+            var categoryName = button.getAttribute('data-category-name');
+            
+            document.getElementById('deleteCategoryId').value = categoryId;
+            document.getElementById('deleteCategoryName').textContent = categoryName;
+        });
+
+        // 성공 메시지 자동 사라짐
+        setTimeout(function() {
+            var alert = document.querySelector('.alert-success');
+            if (alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
+}

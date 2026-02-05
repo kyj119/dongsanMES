@@ -1,0 +1,84 @@
+@page
+@model MESSystem.Pages.Admin.Categories.EditModel
+@{
+    ViewData["Title"] = "분류 수정";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0"><i class="bi bi-pencil"></i> 분류 수정</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <input type="hidden" asp-for="Input.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted">등록일</label>
+                            <input type="text" class="form-control" value="@Model.Input.CreatedAt.ToString("yyyy-MM-dd HH:mm")" disabled />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Name" class="form-label">
+                                분류명 <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Input.Name" class="form-control" />
+                            <span asp-validation-for="Input.Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.CardOrder" class="form-label">
+                                카드 순서 <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Input.CardOrder" type="number" class="form-control" min="1" />
+                            <div class="form-text">
+                                카드가 생성되는 순서입니다. (예: 1=태극기, 2=현수막, 3=간판)
+                            </div>
+                            <span asp-validation-for="Input.CardOrder" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="Input.IsActive" class="form-check-label">
+                                    활성 상태
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                비활성화하면 주문서 작성 시 이 분류가 표시되지 않습니다.
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> 
+                            <strong>주의:</strong> 이미 생성된 카드의 분류명은 자동으로 변경되지 않습니다.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> 취소
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> 수정 저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mt-3">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    입력 내용을 확인해주세요.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

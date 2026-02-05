@@ -1,0 +1,106 @@
+@page
+@model MESSystem.Pages.Admin.Products.CreateModel
+@{
+    ViewData["Title"] = "새 품목 등록";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-plus-circle"></i> 새 품목 등록</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.Code" class="form-label">
+                                    품목코드 <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Input.Code" class="form-control" placeholder="예: TGK001, HSM001" />
+                                <span asp-validation-for="Input.Code" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.Name" class="form-label">
+                                    품목명 <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Input.Name" class="form-control" placeholder="예: 태극기, 현수막" />
+                                <span asp-validation-for="Input.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.CategoryId" class="form-label">
+                                분류 <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="Input.CategoryId" class="form-select">
+                                <option value="">-- 분류 선택 --</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name (순서: @category.CardOrder)</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Input.CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.DefaultSpec" class="form-label">
+                                기본규격
+                            </label>
+                            <input asp-for="Input.DefaultSpec" class="form-control" placeholder="예: 1000x2000mm" />
+                            <div class="form-text">
+                                주문서 작성 시 기본값으로 사용됩니다. (선택 입력)
+                            </div>
+                            <span asp-validation-for="Input.DefaultSpec" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" checked />
+                                <label asp-for="Input.IsActive" class="form-check-label">
+                                    활성 상태
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                비활성화하면 주문서 작성 시 이 품목이 표시되지 않습니다.
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            <strong>품목코드 작성 가이드:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>분류별로 일관된 접두사 사용 권장 (예: TGK=태극기, HSM=현수막, GBN=간판)</li>
+                                <li>숫자는 3자리 이상 사용 (예: 001, 002, 003)</li>
+                                <li>예시: TGK001, TGK002, HSM001, GBN001</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> 취소
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> 저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mt-3">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    입력 내용을 확인해주세요.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

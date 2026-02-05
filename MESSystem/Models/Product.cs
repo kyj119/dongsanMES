@@ -24,6 +24,11 @@ public class Product
     
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
+    // 논리 삭제
+    public bool IsDeleted { get; set; } = false;
+    public DateTime? DeletedAt { get; set; }
+    public string? DeletedBy { get; set; }
+    
     // Navigation properties
     public Category Category { get; set; } = null!;
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

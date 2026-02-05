@@ -17,6 +17,11 @@ public class Category
     
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
+    // 논리 삭제
+    public bool IsDeleted { get; set; } = false;
+    public DateTime? DeletedAt { get; set; }
+    public string? DeletedBy { get; set; }
+    
     // Navigation properties
     public ICollection<Product> Products { get; set; } = new List<Product>();
     public ICollection<Card> Cards { get; set; } = new List<Card>();
