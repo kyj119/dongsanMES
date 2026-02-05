@@ -1,0 +1,235 @@
+@page
+@model MESSystem.Pages.Admin.Orders.DetailModel
+@{
+    ViewData["Title"] = $"주문서 {Model.Order.OrderNumber}";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bi bi-file-earmark-text"></i> 주문서 상세</h2>
+        <div>
+            <a asp-page="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> 목록
+            </a>
+            @if (!Model.Order.IsDeleted)
+            {
+                <a asp-page="Edit" asp-route-id="@Model.Order.Id" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> 수정
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- 주문서 기본 정보 -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                주문번호: <strong>@Model.Order.OrderNumber</strong>
+                <span class="ms-3">
+                    @if (Model.Order.Status == "작성")
+                    {
+                        <span class="badge bg-light text-dark">작성</span>
+                    }
+                    else if (Model.Order.Status == "진행중")
+                    {
+                        <span class="badge bg-info">진행중</span>
+                    }
+                    else if (Model.Order.Status == "완료")
+                    {
+                        <span class="badge bg-success">완료</span>
+                    }
+                    else if (Model.Order.Status == "취소")
+                    {
+                        <span class="badge bg-danger">취소</span>
+                    }
+                </span>
+                @if (Model.Order.IsDeleted)
+                {
+                    <span class="badge bg-secondary ms-2">삭제됨</span>
+                }
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-muted">거래처 정보</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th width="120">거래처명</th>
+                            <td>@Model.Order.ClientName</td>
+                        </tr>
+                        <tr>
+                            <th>주소</th>
+                            <td>@(Model.Order.ClientAddress ?? "-")</td>
+                        </tr>
+                        <tr>
+                            <th>전화번호</th>
+                            <td>@(Model.Order.ClientPhone ?? "-")</td>
+                        </tr>
+                        <tr>
+                            <th>휴대폰</th>
+                            <td>@(Model.Order.ClientMobile ?? "-")</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">출고 정보</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th width="120">출고방법</th>
+                            <td><span class="badge bg-info">@Model.Order.ShippingMethod</span></td>
+                        </tr>
+                        <tr>
+                            <th>결제방법</th>
+                            <td>@(Model.Order.PaymentMethod ?? "-")</td>
+                        </tr>
+                        <tr>
+                            <th>출고일</th>
+                            <td>@Model.Order.ShippingDate.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                        <tr>
+                            <th>출고시간</th>
+                            <td>@(Model.Order.ShippingTime?.ToString(@"hh\:mm") ?? "-")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-12">
+                    <h6 class="text-muted">작성 정보</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th width="120">작성일</th>
+                            <td>@Model.Order.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <th width="120">작성자</th>
+                            <td>@(Model.Order.CreatedBy ?? "System")</td>
+                        </tr>
+                        <tr>
+                            <th>최종 수정</th>
+                            <td>@Model.Order.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <th>버전</th>
+                            <td>@Model.Order.Version</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 품목 목록 -->
+    <div class="card mb-3">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">품목 목록 (@Model.Order.OrderItems.Count 개)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="50">#</th>
+                            <th width="100">품목코드</th>
+                            <th>품목명</th>
+                            <th width="150">규격</th>
+                            <th width="200">내용</th>
+                            <th width="80">수량</th>
+                            <th width="100">단가</th>
+                            <th width="100">금액</th>
+                            <th width="200">디자인파일</th>
+                            <th width="150">비고</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            decimal totalAmount = 0;
+                        }
+                        @foreach (var item in Model.Order.OrderItems.OrderBy(i => i.LineNumber))
+                        {
+                            var amount = item.Quantity * (item.UnitPrice ?? 0);
+                            totalAmount += amount;
+                            <tr>
+                                <td class="text-center">@item.LineNumber</td>
+                                <td><code>@item.Product.Code</code></td>
+                                <td>@item.Product.Name</td>
+                                <td>@(item.Spec ?? "-")</td>
+                                <td>@(item.Description ?? "-")</td>
+                                <td class="text-end">@item.Quantity</td>
+                                <td class="text-end">@(item.UnitPrice?.ToString("N0") ?? "-")</td>
+                                <td class="text-end">@amount.ToString("N0")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.DesignFileName))
+                                    {
+                                        <small class="text-primary">@item.DesignFileName</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>@(item.Remark ?? "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="7" class="text-end">합계</th>
+                            <th class="text-end">@totalAmount.ToString("N0")</th>
+                            <th colspan="2"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카드 목록 -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">생성된 카드 (@Model.Order.Cards.Count 개)</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                @foreach (var card in Model.Order.Cards.OrderBy(c => c.Category.CardOrder))
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <strong>@card.Category.Name</strong>
+                                @if (card.IsModified)
+                                {
+                                    <span class="badge bg-warning text-dark ms-2">수정됨</span>
+                                }
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-2">
+                                    <strong>카드번호:</strong><br>
+                                    <code class="fs-5">@card.CardNumber</code>
+                                </p>
+                                <p class="mb-2">
+                                    <strong>상태:</strong> 
+                                    @if (card.Status == "대기")
+                                    {
+                                        <span class="badge bg-secondary">대기</span>
+                                    }
+                                    else if (card.Status == "작업중")
+                                    {
+                                        <span class="badge bg-primary">작업중</span>
+                                    }
+                                    else if (card.Status == "완료")
+                                    {
+                                        <span class="badge bg-success">완료</span>
+                                    }
+                                </p>
+                                <p class="mb-2">
+                                    <strong>품목 수:</strong> @card.CardItems.Count 개
+                                </p>
+                                <a asp-page="/Cards/Detail" asp-route-id="@card.Id" class="btn btn-sm btn-outline-primary w-100">
+                                    <i class="bi bi-eye"></i> 카드 상세
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

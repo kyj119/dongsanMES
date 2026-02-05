@@ -1,0 +1,181 @@
+@page
+@model MESSystem.Pages.Admin.Orders.IndexModel
+@{
+    ViewData["Title"] = "주문서 목록";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-file-earmark-text"></i> 주문서 목록</h2>
+            <p class="text-muted">등록된 주문서를 조회합니다.</p>
+        </div>
+        <div class="col-auto">
+            <a asp-page="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 새 주문서 작성
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 필터 -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">상태</label>
+                    <select name="status" class="form-select">
+                        <option value="">전체</option>
+                        <option value="작성" selected="@(Model.Status == "작성")">작성</option>
+                        <option value="진행중" selected="@(Model.Status == "진행중")">진행중</option>
+                        <option value="완료" selected="@(Model.Status == "완료")">완료</option>
+                        <option value="취소" selected="@(Model.Status == "취소")">취소</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">검색</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="주문번호 또는 거래처명" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="bi bi-search"></i> 검색
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <a asp-page="Index" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-counterclockwise"></i> 초기화
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 주문서 목록 -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="120">주문번호</th>
+                            <th>거래처</th>
+                            <th width="100">출고방법</th>
+                            <th width="100">출고일</th>
+                            <th width="100">품목 수</th>
+                            <th width="100">카드 수</th>
+                            <th width="100">상태</th>
+                            <th width="180">작성일</th>
+                            <th width="150">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Orders.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">
+                                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.Status))
+                                    {
+                                        <span>검색 결과가 없습니다.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>등록된 주문서가 없습니다.</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var order in Model.Orders)
+                            {
+                                <tr class="@(order.IsDeleted ? "table-secondary text-muted" : "")">
+                                    <td>
+                                        <strong><code>@order.OrderNumber</code></strong>
+                                    </td>
+                                    <td>
+                                        @order.ClientName
+                                        @if (order.IsDeleted)
+                                        {
+                                            <span class="badge bg-secondary ms-2">삭제됨</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">@order.ShippingMethod</span>
+                                    </td>
+                                    <td>
+                                        @order.ShippingDate.ToString("yyyy-MM-dd")
+                                    </td>
+                                    <td class="text-center">
+                                        @order.OrderItems.Count
+                                    </td>
+                                    <td class="text-center">
+                                        @order.Cards.Count
+                                    </td>
+                                    <td>
+                                        @if (order.Status == "작성")
+                                        {
+                                            <span class="badge bg-secondary">작성</span>
+                                        }
+                                        else if (order.Status == "진행중")
+                                        {
+                                            <span class="badge bg-primary">진행중</span>
+                                        }
+                                        else if (order.Status == "완료")
+                                        {
+                                            <span class="badge bg-success">완료</span>
+                                        }
+                                        else if (order.Status == "취소")
+                                        {
+                                            <span class="badge bg-danger">취소</span>
+                                        }
+                                    </td>
+                                    <td>@order.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        <a asp-page="Detail" asp-route-id="@order.Id" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i> 상세
+                                        </a>
+                                        @if (!order.IsDeleted)
+                                        {
+                                            <a asp-page="Edit" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <p class="text-muted">
+            <i class="bi bi-info-circle"></i> 
+            총 <strong>@Model.Orders.Count</strong>개의 주문서가 있습니다.
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 성공 메시지 자동 사라짐
+        setTimeout(function() {
+            var alert = document.querySelector('.alert-success');
+            if (alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
+}
