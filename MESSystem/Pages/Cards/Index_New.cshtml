@@ -1,0 +1,372 @@
+@page
+@model MESSystem.Pages.Cards.IndexModel
+@{
+    ViewData["Title"] = "현장 작업 대시보드";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<style>
+    .work-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        border-left: 5px solid;
+    }
+    .work-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    }
+    .status-대기 { border-left-color: #ffc107 !important; }
+    .status-작업중 { border-left-color: #0dcaf0 !important; }
+    .status-완료 { border-left-color: #198754 !important; }
+    .status-보류 { border-left-color: #6c757d !important; }
+    
+    .badge-urgent { 
+        animation: pulse 2s infinite;
+        font-size: 0.9rem;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+    
+    .file-link {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .file-link:hover {
+        text-decoration: underline;
+    }
+    
+    .shipping-method {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .auto-refresh-indicator {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        z-index: 1000;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>
+                <i class="fas fa-tasks me-2"></i>
+                현장 작업 대시보드
+            </h2>
+            <p class="text-muted mb-0">
+                <i class="fas fa-clock me-1"></i>
+                마지막 업데이트: <span id="lastUpdate">@DateTime.Now.ToString("HH:mm:ss")</span>
+            </p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-1"></i> 새로고침
+            </button>
+        </div>
+    </div>
+
+    <!-- 통계 카드 -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-dark shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1">작업 대기</h6>
+                            <h2 class="mb-0">@Model.Cards.Count(c => c.Status == "대기")</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-hourglass-half fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1">작업 중</h6>
+                            <h2 class="mb-0">@Model.Cards.Count(c => c.Status == "작업중")</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-spinner fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1">완료</h6>
+                            <h2 class="mb-0">@Model.Cards.Count(c => c.Status == "완료")</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-secondary text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1">보류</h6>
+                            <h2 class="mb-0">@Model.Cards.Count(c => c.Status == "보류")</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-pause-circle fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 필터 영역 -->
+    <form method="get" id="filterForm" class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label"><strong>상태</strong></label>
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">전체</option>
+                        <option value="대기" selected="@(Model.Status == "대기")">대기</option>
+                        <option value="작업중" selected="@(Model.Status == "작업중")">작업중</option>
+                        <option value="완료" selected="@(Model.Status == "완료")">완료</option>
+                        <option value="보류" selected="@(Model.Status == "보류")">보류</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label"><strong>분류</strong></label>
+                    <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                        <option value="">전체</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">
+                                @category.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>검색</strong></label>
+                    <input type="text" name="searchTerm" class="form-control" 
+                           placeholder="카드번호 또는 품목명 검색" value="@Model.SearchTerm">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i> 검색
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    @if (!Model.Cards.Any())
+    {
+        <div class="alert alert-info text-center" role="alert">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <h5>표시할 카드가 없습니다.</h5>
+            <p class="mb-0">필터 조건을 변경하거나 새 주문서를 작성해주세요.</p>
+        </div>
+    }
+    else
+    {
+        <!-- 카드 목록 (큰 카드 형태) -->
+        <div class="row">
+            @foreach (var card in Model.Cards)
+            {
+                var isUrgent = card.Order.ShippingDate.Date == DateTime.Today && card.Status != "완료";
+                var totalQuantity = card.CardItems.Sum(ci => ci.Quantity);
+                
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card work-card status-@card.Status shadow-sm h-100" 
+                         onclick="location.href='/Cards/Detail?id=@card.Id'">
+                        <div class="card-body">
+                            <!-- 카드 헤더 -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1">
+                                        <i class="fas fa-id-card me-1"></i>
+                                        <code>@card.CardNumber</code>
+                                    </h5>
+                                    <span class="badge bg-secondary">@card.Category.Name</span>
+                                    @if (card.IsModified)
+                                    {
+                                        <span class="badge bg-danger ms-1">
+                                            <i class="fas fa-exclamation-triangle"></i> 수정됨
+                                        </span>
+                                    }
+                                </div>
+                                <div>
+                                    @if (card.Status == "대기")
+                                    {
+                                        <span class="badge bg-warning text-dark px-3 py-2" style="font-size: 1rem;">대기</span>
+                                    }
+                                    else if (card.Status == "작업중")
+                                    {
+                                        <span class="badge bg-info text-white px-3 py-2" style="font-size: 1rem;">작업중</span>
+                                    }
+                                    else if (card.Status == "완료")
+                                    {
+                                        <span class="badge bg-success text-white px-3 py-2" style="font-size: 1rem;">완료</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary text-white px-3 py-2" style="font-size: 1rem;">보류</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- 품목 정보 -->
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-box me-1"></i> 품목 (@card.CardItems.Count개)
+                                </h6>
+                                @foreach (var item in card.CardItems.Take(2))
+                                {
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>@item.ProductName</span>
+                                        <span class="text-primary"><strong>@item.Quantity 개</strong></span>
+                                    </div>
+                                }
+                                @if (card.CardItems.Count > 2)
+                                {
+                                    <small class="text-muted">외 @(card.CardItems.Count - 2)개...</small>
+                                }
+                            </div>
+
+                            <hr>
+
+                            <!-- 출고 정보 -->
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">
+                                        <i class="fas fa-truck me-1"></i> 출고방법
+                                    </span>
+                                    <span class="shipping-method bg-light border">
+                                        @card.Order.ShippingMethod
+                                        @if (!string.IsNullOrEmpty(card.Order.PaymentMethod))
+                                        {
+                                            <span class="text-muted">(@card.Order.PaymentMethod)</span>
+                                        }
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i> 출고일시
+                                    </span>
+                                    <span>
+                                        <strong>@card.Order.ShippingDate.ToString("MM/dd (ddd)")</strong>
+                                        @if (card.Order.ShippingTime.HasValue)
+                                        {
+                                            <span class="text-primary ms-1">@card.Order.ShippingTime.Value.ToString(@"hh\:mm")</span>
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+
+                            @if (isUrgent)
+                            {
+                                <div class="alert alert-danger mt-2 mb-2 py-2">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    <strong>긴급!</strong> 오늘 출고 예정
+                                </div>
+                            }
+
+                            <!-- 디자인 파일 링크 -->
+                            @if (card.CardItems.Any(ci => !string.IsNullOrEmpty(ci.OrderItem?.FilePath)))
+                            {
+                                <hr>
+                                <div>
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fas fa-file-image me-1"></i> 디자인 파일
+                                    </h6>
+                                    @foreach (var item in card.CardItems.Where(ci => !string.IsNullOrEmpty(ci.OrderItem?.FilePath)))
+                                    {
+                                        <div class="mb-1">
+                                            <a href="file:///@item.OrderItem!.FilePath" 
+                                               class="file-link"
+                                               onclick="event.stopPropagation(); return confirm('파일을 여시겠습니까?\\n@item.OrderItem.FilePath');">
+                                                <i class="fas fa-folder-open me-1"></i>
+                                                @item.OrderItem.DesignFileName
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        
+                        <!-- 카드 푸터 -->
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    주문서: @card.Order.OrderNumber
+                                </small>
+                                <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); location.href='/Cards/Detail?id=@card.Id'">
+                                    상세보기 <i class="fas fa-arrow-right ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- 자동 새로고침 표시 -->
+<div class="auto-refresh-indicator">
+    <i class="fas fa-sync-alt me-2"></i>
+    <span id="refreshCounter">30</span>초 후 자동 새로고침
+</div>
+
+@section Scripts {
+    <script>
+        // 자동 새로고침 (30초)
+        let refreshInterval = 30; // 초
+        let counter = refreshInterval;
+
+        function updateCounter() {
+            counter--;
+            document.getElementById('refreshCounter').textContent = counter;
+            
+            if (counter <= 0) {
+                location.reload();
+            }
+        }
+
+        // 1초마다 카운터 업데이트
+        setInterval(updateCounter, 1000);
+
+        // 사용자 활동 시 카운터 리셋
+        document.addEventListener('click', function() {
+            counter = refreshInterval;
+        });
+        
+        // 마지막 업데이트 시간 표시
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ko-KR');
+    </script>
+}
