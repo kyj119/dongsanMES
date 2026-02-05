@@ -80,9 +80,13 @@ namespace MESSystem.Pages
                 .Where(c => !c.Order.IsDeleted 
                     && c.Order.ShippingDate == today
                     && c.Status != "완료")
+                .ToListAsync();
+            
+            // SQLite는 TimeSpan을 ORDER BY에서 지원하지 않으므로 메모리에서 정렬
+            UrgentCards = UrgentCards
                 .OrderBy(c => c.Order.ShippingTime)
                 .ThenBy(c => c.CardNumber)
-                .ToListAsync();
+                .ToList();
 
             return Page();
         }

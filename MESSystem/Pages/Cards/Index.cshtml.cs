@@ -64,11 +64,18 @@ namespace MESSystem.Pages.Cards
             }
 
             // 정렬: 출고일시 오름차순 (가장 빨리 출고해야 할 것부터)
-            Cards = await query
+            // SQLite는 TimeSpan을 ORDER BY에서 지원하지 않으므로 먼저 날짜만 정렬
+            var tempCards = await query
+                .OrderBy(c => c.Order.ShippingDate)
+                .ThenBy(c => c.CardNumber)
+                .ToListAsync();
+            
+            // 메모리에서 ShippingTime으로 추가 정렬
+            Cards = tempCards
                 .OrderBy(c => c.Order.ShippingDate)
                 .ThenBy(c => c.Order.ShippingTime)
                 .ThenBy(c => c.CardNumber)
-                .ToListAsync();
+                .ToList();
         }
     }
 }
