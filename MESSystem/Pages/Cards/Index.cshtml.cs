@@ -56,11 +56,12 @@ namespace MESSystem.Pages.Cards
                 query = query.Where(c => c.CategoryId == CategoryId.Value);
             }
 
-            // 검색어 필터
+            // 검색어 필터 (카드번호, 품목명, 거래처명)
             if (!string.IsNullOrEmpty(SearchTerm))
             {
                 query = query.Where(c => c.CardNumber.Contains(SearchTerm) ||
-                                        c.CardItems.Any(ci => ci.OrderItem.Product.Name.Contains(SearchTerm)));
+                                        c.CardItems.Any(ci => ci.OrderItem.Product.Name.Contains(SearchTerm)) ||
+                                        c.Order.ClientName.Contains(SearchTerm));
             }
 
             // 정렬: 출고일시 오름차순 (가장 빨리 출고해야 할 것부터)
