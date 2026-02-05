@@ -148,6 +148,21 @@
                                             <a asp-page="Edit" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal" 
+                                                    data-order-id="@order.Id" 
+                                                    data-order-number="@order.OrderNumber">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-page-handler="Restore" asp-route-id="@order.Id" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-arrow-counterclockwise"></i> 복구
+                                                </button>
+                                            </form>
                                         }
                                     </td>
                                 </tr>
@@ -167,8 +182,60 @@
     </div>
 </div>
 
+<!-- 삭제 확인 모달 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">주문서 삭제 확인</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>정말로 주문서 "<strong><code id="deleteOrderNumber"></code></strong>"를 삭제하시겠습니까?</p>
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    <strong>주의:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>연결된 모든 카드가 '취소' 상태로 변경됩니다.</li>
+                        <li>삭제된 주문서는 목록에서 복구할 수 있습니다.</li>
+                    </ul>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">삭제 사유 (선택)</label>
+                    <input type="text" class="form-control" id="deleteReason" placeholder="예: 고객 요청, 중복 주문" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form method="post" asp-page-handler="Delete" id="deleteForm">
+                    <input type="hidden" name="id" id="deleteOrderId" />
+                    <input type="hidden" name="reason" id="deleteReasonHidden" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-danger">삭제</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        // 삭제 모달 데이터 설정
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var orderId = button.getAttribute('data-order-id');
+            var orderNumber = button.getAttribute('data-order-number');
+            
+            document.getElementById('deleteOrderId').value = orderId;
+            document.getElementById('deleteOrderNumber').textContent = orderNumber;
+        });
+
+        // 삭제 폼 제출 시 사유 전달
+        document.getElementById('deleteForm').addEventListener('submit', function() {
+            var reason = document.getElementById('deleteReason').value;
+            document.getElementById('deleteReasonHidden').value = reason;
+        });
+
         // 성공 메시지 자동 사라짐
         setTimeout(function() {
             var alert = document.querySelector('.alert-success');

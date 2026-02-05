@@ -1,0 +1,220 @@
+@page
+@model MESSystem.Pages.Admin.Orders.EditModel
+@{
+    ViewData["Title"] = $"주문서 수정 - {Model.Order.OrderNumber}";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-warning">
+            <h4 class="mb-0"><i class="bi bi-pencil-square"></i> 주문서 수정 - <code>@Model.Order.OrderNumber</code></h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>주의:</strong> 주문서 수정 시 연결된 카드에 '수정됨' 알림이 표시됩니다.
+            </div>
+
+            <form method="post" enctype="multipart/form-data" id="orderForm">
+                <input type="hidden" asp-for="Input.OrderId" />
+                <input type="hidden" asp-for="Input.Version" />
+                
+                <!-- 거래처 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">거래처 정보</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ClientName" class="form-label">
+                                    거래처명 <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Input.ClientName" class="form-control" />
+                                <span asp-validation-for="Input.ClientName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ClientPhone" class="form-label">
+                                    전화번호
+                                </label>
+                                <input asp-for="Input.ClientPhone" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ClientMobile" class="form-label">
+                                    휴대폰
+                                </label>
+                                <input asp-for="Input.ClientMobile" class="form-control" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ClientAddress" class="form-label">
+                                    주소
+                                </label>
+                                <input asp-for="Input.ClientAddress" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 출고 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">출고 정보</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Input.ShippingMethod" class="form-label">
+                                    출고방법 <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Input.ShippingMethod" class="form-select" id="shippingMethod">
+                                    <option value="">-- 선택 --</option>
+                                    <option value="대신택배">대신택배</option>
+                                    <option value="대신화물">대신화물</option>
+                                    <option value="한진택배">한진택배</option>
+                                    <option value="퀵">퀵</option>
+                                    <option value="용차">용차</option>
+                                    <option value="방문수령">방문수령</option>
+                                    <option value="직접배송">직접배송</option>
+                                </select>
+                                <span asp-validation-for="Input.ShippingMethod" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3" id="paymentMethodGroup">
+                                <label asp-for="Input.PaymentMethod" class="form-label">
+                                    결제방법 <span class="text-danger" id="paymentRequired">*</span>
+                                </label>
+                                <select asp-for="Input.PaymentMethod" class="form-select" id="paymentMethod">
+                                    <option value="">-- 선택 --</option>
+                                    <option value="착불">착불</option>
+                                    <option value="선불">선불</option>
+                                </select>
+                                <span asp-validation-for="Input.PaymentMethod" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Input.ShippingDate" class="form-label">
+                                    출고일 <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Input.ShippingDate" type="date" class="form-control" />
+                                <span asp-validation-for="Input.ShippingDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3" id="shippingTimeGroup">
+                                <label asp-for="Input.ShippingTime" class="form-label">
+                                    출고시간 <span class="text-danger" id="timeRequired">*</span>
+                                </label>
+                                <input asp-for="Input.ShippingTime" type="time" class="form-control" />
+                                <span asp-validation-for="Input.ShippingTime" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 품목 정보 (읽기 전용) -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">품목 정보 (읽기 전용)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            품목 변경이 필요한 경우 새 주문서를 작성해주세요.
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="50">#</th>
+                                        <th width="100">품목코드</th>
+                                        <th>품목명</th>
+                                        <th width="150">규격</th>
+                                        <th width="80">수량</th>
+                                        <th width="200">디자인파일</th>
+                                        <th width="150">비고</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Order.OrderItems.OrderBy(i => i.LineNumber))
+                                    {
+                                        <tr>
+                                            <td class="text-center">@item.LineNumber</td>
+                                            <td><code>@item.Product.Code</code></td>
+                                            <td>@item.Product.Name</td>
+                                            <td>@(item.Spec ?? "-")</td>
+                                            <td class="text-end">@item.Quantity</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.DesignFileName))
+                                                {
+                                                    <small class="text-primary">@item.DesignFileName</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>@(item.Remark ?? "-")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <a asp-page="Detail" asp-route-id="@Model.Order.Id" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> 취소
+                        </a>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-lg">
+                        <i class="bi bi-save"></i> 수정 저장 (카드 알림 표시)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // 페이지 로드 시 출고방법에 따라 필드 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFieldsVisibility();
+        });
+
+        // 출고방법 변경 시
+        document.getElementById('shippingMethod').addEventListener('change', function() {
+            updateFieldsVisibility();
+        });
+
+        function updateFieldsVisibility() {
+            const method = document.getElementById('shippingMethod').value;
+            const paymentMethodGroup = document.getElementById('paymentMethodGroup');
+            const shippingTimeGroup = document.getElementById('shippingTimeGroup');
+            const paymentRequired = document.getElementById('paymentRequired');
+            const timeRequired = document.getElementById('timeRequired');
+
+            // 결제방법 표시/숨김
+            if (['대신택배', '대신화물', '한진택배', '퀵', '용차'].includes(method)) {
+                paymentMethodGroup.style.display = 'block';
+                paymentRequired.style.display = 'inline';
+            } else {
+                paymentMethodGroup.style.display = 'none';
+                paymentRequired.style.display = 'none';
+            }
+
+            // 출고시간 표시/숨김
+            if (['퀵', '용차', '방문수령', '직접배송'].includes(method)) {
+                shippingTimeGroup.style.display = 'block';
+                timeRequired.style.display = 'inline';
+            } else {
+                shippingTimeGroup.style.display = 'none';
+                timeRequired.style.display = 'none';
+            }
+        }
+    </script>
+}
