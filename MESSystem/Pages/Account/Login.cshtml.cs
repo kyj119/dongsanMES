@@ -64,14 +64,7 @@ public class LoginModel : PageModel
         HttpContext.Session.SetString("UserRole", user.Role);
         HttpContext.Session.SetString("UserName", user.FullName);
         
-        // 역할별 리다이렉트
-        if (user.Role == "관리자")
-        {
-            return RedirectToPage("/Admin/Orders/Index");
-        }
-        else
-        {
-            return RedirectToPage("/Cards/Index");
-        }
+        // 대시보드로 리다이렉트
+        return RedirectToPage("/Index");
     }
 }
