@@ -4,16 +4,19 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using MESSystem.Data;
 using MESSystem.Models;
+using MESSystem.Services;
 
 namespace MESSystem.Pages.Admin.Orders
 {
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly FileUploadService _fileUploadService;
 
-        public EditModel(ApplicationDbContext context)
+        public EditModel(ApplicationDbContext context, FileUploadService fileUploadService)
         {
             _context = context;
+            _fileUploadService = fileUploadService;
         }
 
         public Order Order { get; set; } = null!;
@@ -24,6 +27,9 @@ namespace MESSystem.Pages.Admin.Orders
         public class InputModel
         {
             public int OrderId { get; set; }
+
+            // 품목 정보
+            public List<OrderItemInput> Items { get; set; } = new();
 
             // 거래처 정보
             [Required(ErrorMessage = "거래처명은 필수입니다.")]
@@ -54,6 +60,18 @@ namespace MESSystem.Pages.Admin.Orders
             public int Version { get; set; }
         }
 
+        public class OrderItemInput
+        {
+            public int? OrderItemId { get; set; }  // 기존 품목 수정 시
+            public int ProductId { get; set; }
+            public string? Spec { get; set; }
+            public string? Description { get; set; }
+            public int Quantity { get; set; }
+            public decimal UnitPrice { get; set; }
+            public IFormFile? DesignFile { get; set; }
+            public string? Remark { get; set; }
+        }
+
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
@@ -64,6 +82,7 @@ namespace MESSystem.Pages.Admin.Orders
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Category)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)
@@ -90,7 +109,17 @@ namespace MESSystem.Pages.Admin.Orders
                 PaymentMethod = order.PaymentMethod,
                 ShippingDate = order.ShippingDate,
                 ShippingTime = order.ShippingTime,
-                Version = order.Version
+                Version = order.Version,
+                Items = order.OrderItems.OrderBy(i => i.LineNumber).Select(item => new OrderItemInput
+                {
+                    OrderItemId = item.Id,
+                    ProductId = item.ProductId,
+                    Spec = item.Spec,
+                    Description = item.Description,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    Remark = item.Remark
+                }).ToList()
             };
 
             return Page();
@@ -118,6 +147,13 @@ namespace MESSystem.Pages.Admin.Orders
                 return Page();
             }
 
+            // 품목 최소 1개 검증
+            if (Input.Items == null || Input.Items.Count == 0)
+            {
+                ModelState.AddModelError(string.Empty, "최소 1개 이상의 품목이 필요합니다.");
+                return Page();
+            }
+
             // 비즈니스 검증
             var validationError = ValidateInput();
             if (!string.IsNullOrEmpty(validationError))
@@ -135,7 +171,7 @@ namespace MESSystem.Pages.Admin.Orders
 
             try
             {
-                // 1. 주문서 업데이트
+                // 1. 주문서 정보 업데이트
                 order.ClientName = Input.ClientName;
                 order.ClientPhone = Input.ClientPhone;
                 order.ClientMobile = Input.ClientMobile;
@@ -147,21 +183,93 @@ namespace MESSystem.Pages.Admin.Orders
                 order.UpdatedAt = DateTime.Now;
                 order.Version++; // 버전 증가
 
-                // 2. 연결된 모든 카드에 '수정됨' 플래그 설정
+                // 2. 품목 정보 업데이트
+                var submittedItemIds = Input.Items
+                    .Where(i => i.OrderItemId.HasValue)
+                    .Select(i => i.OrderItemId!.Value)
+                    .ToHashSet();
+
+                // 2-1. 삭제된 품목 제거 (체크박스 해제)
+                var itemsToDelete = order.OrderItems
+                    .Where(item => !submittedItemIds.Contains(item.Id))
+                    .ToList();
+
+                foreach (var item in itemsToDelete)
+                {
+                    _context.OrderItems.Remove(item);
+                    
+                    // 연결된 카드 아이템도 제거
+                    foreach (var card in order.Cards)
+                    {
+                        var cardItemsToRemove = card.CardItems
+                            .Where(ci => ci.OrderItemId == item.Id)
+                            .ToList();
+                        
+                        foreach (var ci in cardItemsToRemove)
+                        {
+                            _context.Remove(ci);
+                        }
+                    }
+                }
+
+                // 2-2. 기존 품목 업데이트
+                for (int i = 0; i < Input.Items.Count; i++)
+                {
+                    var inputItem = Input.Items[i];
+                    
+                    if (inputItem.OrderItemId.HasValue)
+                    {
+                        var orderItem = order.OrderItems.FirstOrDefault(oi => oi.Id == inputItem.OrderItemId.Value);
+                        if (orderItem != null)
+                        {
+                            // 기존 품목 정보 업데이트
+                            orderItem.Spec = inputItem.Spec;
+                            orderItem.Description = inputItem.Description;
+                            orderItem.Quantity = inputItem.Quantity;
+                            orderItem.UnitPrice = inputItem.UnitPrice;
+                            orderItem.Remark = inputItem.Remark;
+                            orderItem.LineNumber = i + 1;
+
+                            // 디자인 파일 교체
+                            if (inputItem.DesignFile != null && inputItem.DesignFile.Length > 0)
+                            {
+                                var cardNumber = order.Cards.FirstOrDefault(c => 
+                                    c.CardItems.Any(ci => ci.OrderItemId == orderItem.Id))?.CardNumber;
+                                
+                                if (!string.IsNullOrEmpty(cardNumber))
+                                {
+                                    var filePath = await _fileUploadService.UploadFileAsync(
+                                        inputItem.DesignFile,
+                                        order.OrderNumber,
+                                        cardNumber);
+                                    
+                                    orderItem.DesignFileName = Path.GetFileName(filePath);
+                                    orderItem.FilePath = filePath;
+                                }
+                            }
+                            
+                            // 연결된 카드 아이템 스냅샷도 업데이트
+                            foreach (var card in order.Cards)
+                            {
+                                var cardItem = card.CardItems.FirstOrDefault(ci => ci.OrderItemId == orderItem.Id);
+                                if (cardItem != null)
+                                {
+                                    cardItem.ProductName = orderItem.Product.Name;
+                                    cardItem.ProductCode = orderItem.Product.Code;
+                                    cardItem.Spec = orderItem.Spec;
+                                    cardItem.Quantity = orderItem.Quantity;
+                                    cardItem.UnitPrice = orderItem.UnitPrice;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 3. 연결된 모든 카드에 '수정됨' 플래그 설정
                 foreach (var card in order.Cards)
                 {
                     card.IsModified = true;
-                    
-                    // 카드 품목 스냅샷도 업데이트 (최신 정보 반영)
-                    foreach (var cardItem in card.CardItems)
-                    {
-                        var orderItem = order.OrderItems.FirstOrDefault(oi => oi.Id == cardItem.OrderItemId);
-                        if (orderItem != null)
-                        {
-                            // 주문서 품목 정보를 카드 스냅샷에 동기화
-                            // (현재 품목 자체는 수정 안 함, 거래처/출고 정보만 수정)
-                        }
-                    }
+                    card.ModifiedAt = DateTime.Now;
                 }
 
                 await _context.SaveChangesAsync();
