@@ -50,24 +50,82 @@
     
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/">
                 <i class="fas fa-industry"></i> MES 시스템
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    @if (!string.IsNullOrEmpty(userId))
+                    {
+                        <!-- 대시보드 메뉴 -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-home"></i> 대시보드
+                            </a>
+                        </li>
+                        
+                        @if (userRole == "관리자")
+                        {
+                            <!-- 관리자 메뉴 -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog"></i> 마스터 관리
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/Admin/Categories/Index">
+                                        <i class="fas fa-tags"></i> 분류 관리
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/Admin/Products/Index">
+                                        <i class="fas fa-box"></i> 품목 관리
+                                    </a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-file-invoice"></i> 주문 관리
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/Admin/Orders/Create">
+                                        <i class="fas fa-plus-circle"></i> 주문서 작성
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/Admin/Orders/Index">
+                                        <i class="fas fa-list"></i> 주문서 목록
+                                    </a></li>
+                                </ul>
+                            </li>
+                        }
+                        
+                        <!-- 현장 작업 메뉴 -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-clipboard-list"></i> 현장 작업
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/Cards/Index">
+                                    <i class="fas fa-id-card"></i> 카드 목록
+                                </a></li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <span class="navbar-text text-white me-3">
-                            <i class="fas fa-user"></i> @userName (@userRole)
-                        </span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Account/Logout">
-                            <i class="fas fa-sign-out-alt"></i> 로그아웃
-                        </a>
-                    </li>
+                    @if (!string.IsNullOrEmpty(userId))
+                    {
+                        <li class="nav-item">
+                            <span class="navbar-text text-white me-3">
+                                <i class="fas fa-user"></i> @userName (@userRole)
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Account/Logout">
+                                <i class="fas fa-sign-out-alt"></i> 로그아웃
+                            </a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
@@ -77,57 +135,7 @@
         <div class="row">
             @if (!string.IsNullOrEmpty(userId))
             {
-                <nav class="col-md-2 sidebar d-none d-md-block">
-                    <div class="pt-3">
-                        @if (userRole == "관리자")
-                        {
-                            <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">
-                                <span>마스터 관리</span>
-                            </h6>
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/Admin/Categories/Index">
-                                        <i class="fas fa-tags"></i> 분류 관리
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/Admin/Products/Index">
-                                        <i class="fas fa-box"></i> 품목 관리
-                                    </a>
-                                </li>
-                            </ul>
-                            
-                            <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">
-                                <span>주문서 관리</span>
-                            </h6>
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/Admin/Orders/Create">
-                                        <i class="fas fa-plus-circle"></i> 주문서 작성
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/Admin/Orders/Index">
-                                        <i class="fas fa-list"></i> 주문서 목록
-                                    </a>
-                                </li>
-                            </ul>
-                        }
-                        
-                        <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">
-                            <span>현장 작업</span>
-                        </h6>
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/Cards/Index">
-                                    <i class="fas fa-id-card"></i> 카드 조회
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                
-                <main class="col-md-10 ms-sm-auto main-content">
+                <main class="col-12 main-content">
                     @if (TempData["SuccessMessage"] != null)
                     {
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
