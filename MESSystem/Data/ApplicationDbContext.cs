@@ -13,6 +13,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<Client> Clients { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Card> Cards { get; set; }
@@ -46,12 +47,24 @@ public class ApplicationDbContext : DbContext
                   .OnDelete(DeleteBehavior.Restrict);
         });
         
+        // Client
+        modelBuilder.Entity<Client>(entity =>
+        {
+            entity.HasIndex(e => e.Name);
+            entity.HasIndex(e => e.IsActive);
+        });
+        
         // Order
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasIndex(e => e.OrderNumber).IsUnique();
             entity.HasIndex(e => e.CreatedAt);
             entity.HasIndex(e => e.IsDeleted);
+            
+            entity.HasOne(e => e.Client)
+                  .WithMany(c => c.Orders)
+                  .HasForeignKey(e => e.ClientId)
+                  .OnDelete(DeleteBehavior.SetNull);
             
             entity.HasOne(e => e.ParentOrder)
                   .WithMany(o => o.ChildOrders)

@@ -163,6 +163,55 @@ app.MapPost("/api/events", async (EventDto eventDto, ApplicationDbContext db, IL
     }
 });
 
+// 거래처 검색 API
+app.MapGet("/api/clients/search", async (string? q, ApplicationDbContext db) =>
+{
+    if (string.IsNullOrEmpty(q))
+    {
+        return Results.Ok(new List<object>());
+    }
+
+    var clients = await db.Clients
+        .Where(c => c.IsActive && c.Name.Contains(q))
+        .Take(10)
+        .Select(c => new
+        {
+            c.Id,
+            c.Name,
+            c.Address,
+            c.Phone,
+            c.Mobile
+        })
+        .ToListAsync();
+
+    return Results.Ok(clients);
+});
+
+// 품목 검색 API
+app.MapGet("/api/products/search", async (string? q, ApplicationDbContext db) =>
+{
+    if (string.IsNullOrEmpty(q))
+    {
+        return Results.Ok(new List<object>());
+    }
+
+    var products = await db.Products
+        .Include(p => p.Category)
+        .Where(p => p.IsActive && (p.Name.Contains(q) || p.Code.Contains(q)))
+        .Take(20)
+        .Select(p => new
+        {
+            p.Id,
+            p.Code,
+            p.Name,
+            p.DefaultSpec,
+            CategoryName = p.Category.Name
+        })
+        .ToListAsync();
+
+    return Results.Ok(products);
+});
+
 app.Run();
 
 // DTO for API

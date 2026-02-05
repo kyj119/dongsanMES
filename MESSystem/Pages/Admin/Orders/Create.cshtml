@@ -23,8 +23,14 @@
                                 <label asp-for="Input.ClientName" class="form-label">
                                     거래처명 <span class="text-danger">*</span>
                                 </label>
-                                <input asp-for="Input.ClientName" class="form-control" placeholder="예: (주)한국상사" />
+                                <input asp-for="Input.ClientName" class="form-control" 
+                                       id="clientName" 
+                                       placeholder="거래처명을 입력하세요 (자동완성)"
+                                       autocomplete="off" />
+                                <input type="hidden" id="clientId" />
+                                <div id="clientSuggestions" class="list-group position-absolute" style="z-index: 1000; max-height: 300px; overflow-y: auto; display: none;"></div>
                                 <span asp-validation-for="Input.ClientName" class="text-danger"></span>
+                                <small class="text-muted">💡 거래처명을 입력하면 자동으로 나머지 정보가 채워집니다</small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label asp-for="Input.ClientPhone" class="form-label">
@@ -132,16 +138,15 @@
                                     {
                                         <tr class="item-row" data-row-index="@i">
                                             <td class="text-center row-number">@(i + 1)</td>
-                                            <td>
-                                                <select name="Input.Items[@i].ProductId" class="form-select form-select-sm product-select">
-                                                    <option value="">-- 선택 --</option>
-                                                    @foreach (var product in Model.Products)
-                                                    {
-                                                        <option value="@product.Id" data-spec="@product.DefaultSpec">
-                                                            [@product.Code] @product.Name
-                                                        </option>
-                                                    }
-                                                </select>
+                                            <td class="position-relative">
+                                                <input type="text" 
+                                                       class="form-control form-control-sm product-search-input" 
+                                                       placeholder="품목명 또는 코드 검색..."
+                                                       autocomplete="off"
+                                                       data-row="@i" />
+                                                <input type="hidden" name="Input.Items[@i].ProductId" class="product-id-input" />
+                                                <div class="product-suggestions position-absolute bg-white border rounded shadow-sm" 
+                                                     style="display:none; z-index: 1000; max-height: 200px; overflow-y: auto; width: 100%;"></div>
                                             </td>
                                             <td>
                                                 <input type="text" name="Input.Items[@i].Spec" class="form-control form-control-sm spec-input" placeholder="예: 1000x2000mm" />

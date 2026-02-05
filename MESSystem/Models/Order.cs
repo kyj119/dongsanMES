@@ -10,6 +10,9 @@ public class Order
     [StringLength(20)]
     public string OrderNumber { get; set; } = string.Empty; // YYYYMMDD-XX
     
+    // 거래처 정보 (Client 참조)
+    public int? ClientId { get; set; }
+    
     [Required]
     [StringLength(100)]
     public string ClientName { get; set; } = string.Empty;
@@ -69,6 +72,7 @@ public class Order
     public string? ParentReason { get; set; }
     
     // Navigation properties
+    public Client? Client { get; set; }
     public Order? ParentOrder { get; set; }
     public ICollection<Order> ChildOrders { get; set; } = new List<Order>();
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
