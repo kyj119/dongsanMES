@@ -9,7 +9,7 @@ builder.Services.AddRazorPages();
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Session
 builder.Services.AddDistributedMemoryCache();
@@ -28,6 +28,53 @@ builder.Services.AddScoped<FileUploadService>();
 builder.Services.AddScoped<OrderNumberService>();
 
 var app = builder.Build();
+
+// 데이터베이스 초기화 및 시드 데이터
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    
+    // 데이터베이스 생성
+    context.Database.EnsureCreated();
+    
+    // 기본 사용자가 없으면 추가
+    if (!context.Users.Any())
+    {
+        context.Users.AddRange(
+            new MESSystem.Models.User
+            {
+                Username = "admin",
+                Password = "admin123",
+                FullName = "관리자",
+                Role = "관리자",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.User
+            {
+                Username = "designer",
+                Password = "designer123",
+                FullName = "디자이너",
+                Role = "디자이너",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            }
+        );
+        context.SaveChanges();
+    }
+    
+    // 기본 분류가 없으면 추가
+    if (!context.Categories.Any())
+    {
+        context.Categories.AddRange(
+            new MESSystem.Models.Category { Name = "태극기", CardOrder = 1, IsActive = true, CreatedAt = DateTime.Now },
+            new MESSystem.Models.Category { Name = "현수막", CardOrder = 2, IsActive = true, CreatedAt = DateTime.Now },
+            new MESSystem.Models.Category { Name = "간판", CardOrder = 3, IsActive = true, CreatedAt = DateTime.Now }
+        );
+        context.SaveChanges();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
