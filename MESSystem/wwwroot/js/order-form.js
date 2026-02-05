@@ -457,8 +457,8 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
 
     // 최소 1개 품목 검증
     let hasItem = false;
-    document.querySelectorAll('.product-select').forEach(select => {
-        if (select.value) hasItem = true;
+    document.querySelectorAll('.product-id-input').forEach(input => {
+        if (input.value) hasItem = true;
     });
 
     if (!hasItem) {
