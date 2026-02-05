@@ -143,6 +143,9 @@
                                         <a asp-page="Detail" asp-route-id="@order.Id" class="btn btn-sm btn-outline-info">
                                             <i class="bi bi-eye"></i> 상세
                                         </a>
+                                        <a href="/Admin/Orders/Print/@order.Id" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
                                         @if (!order.IsDeleted)
                                         {
                                             <a asp-page="Edit" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">

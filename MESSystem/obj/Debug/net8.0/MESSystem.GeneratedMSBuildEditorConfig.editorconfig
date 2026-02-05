@@ -54,6 +54,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vT3JkZXJzL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/user/webapp/MESSystem/Pages/Admin/Orders/Print.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vT3JkZXJzL1ByaW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/user/webapp/MESSystem/Pages/Admin/Products/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vUHJvZHVjdHMvQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -64,6 +68,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/home/user/webapp/MESSystem/Pages/Admin/Products/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vUHJvZHVjdHMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/user/webapp/MESSystem/Pages/Cards/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ2FyZHMvRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/user/webapp/MESSystem/Pages/Cards/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ2FyZHMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/user/webapp/MESSystem/Pages/Cards/Print.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ2FyZHMvUHJpbnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/user/webapp/MESSystem/Pages/Error.cshtml]

@@ -11,6 +11,9 @@
             <a asp-page="Index" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i> 목록
             </a>
+            <a href="/Admin/Orders/Print/@Model.Order.Id" target="_blank" class="btn btn-info">
+                <i class="bi bi-printer"></i> 인쇄
+            </a>
             @if (!Model.Order.IsDeleted)
             {
                 <a asp-page="Edit" asp-route-id="@Model.Order.Id" class="btn btn-warning">

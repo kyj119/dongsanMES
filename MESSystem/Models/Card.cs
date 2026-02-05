@@ -28,6 +28,8 @@ public class Card
     
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
+    public DateTime? UpdatedAt { get; set; }  // 상태 변경 시간
+    
     // Navigation properties
     public Order Order { get; set; } = null!;
     public Category Category { get; set; } = null!;
