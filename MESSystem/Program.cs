@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MESSystem.Data;
+using MESSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,10 @@ builder.Services.AddSession(options =>
 
 // Add HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
+
+// Add custom services
+builder.Services.AddScoped<FileUploadService>();
+builder.Services.AddScoped<OrderNumberService>();
 
 var app = builder.Build();
 

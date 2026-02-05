@@ -28,6 +28,9 @@ public class OrderItem
     [StringLength(200)]
     public string? DesignFileName { get; set; }
     
+    [StringLength(500)]
+    public string? FilePath { get; set; } // 전체 파일 경로
+    
     [StringLength(200)]
     public string? Remark { get; set; }
     

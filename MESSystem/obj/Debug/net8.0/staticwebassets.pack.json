@@ -13,6 +13,10 @@
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
+      "Id": "/home/user/webapp/MESSystem/wwwroot/js/order-form.js",
+      "PackagePath": "staticwebassets/js/order-form.js"
+    },
+    {
       "Id": "/home/user/webapp/MESSystem/wwwroot/js/site.js",
       "PackagePath": "staticwebassets/js/site.js"
     },

@@ -1,0 +1,206 @@
+@page
+@model MESSystem.Pages.Admin.Orders.CreateModel
+@{
+    ViewData["Title"] = "주문서 작성";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-file-earmark-plus"></i> 주문서 작성</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="orderForm">
+                
+                <!-- 거래처 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">거래처 정보</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ClientName" class="form-label">
+                                    거래처명 <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Input.ClientName" class="form-control" placeholder="예: (주)한국상사" />
+                                <span asp-validation-for="Input.ClientName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ClientPhone" class="form-label">
+                                    전화번호
+                                </label>
+                                <input asp-for="Input.ClientPhone" class="form-control" placeholder="예: 02-1234-5678" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ClientMobile" class="form-label">
+                                    휴대폰
+                                </label>
+                                <input asp-for="Input.ClientMobile" class="form-control" placeholder="예: 010-1234-5678" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ClientAddress" class="form-label">
+                                    주소
+                                </label>
+                                <input asp-for="Input.ClientAddress" class="form-control" placeholder="예: 서울시 강남구..." />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 출고 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">출고 정보</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Input.ShippingMethod" class="form-label">
+                                    출고방법 <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Input.ShippingMethod" class="form-select" id="shippingMethod">
+                                    <option value="">-- 선택 --</option>
+                                    <option value="대신택배">대신택배</option>
+                                    <option value="대신화물">대신화물</option>
+                                    <option value="한진택배">한진택배</option>
+                                    <option value="퀵">퀵</option>
+                                    <option value="용차">용차</option>
+                                    <option value="방문수령">방문수령</option>
+                                    <option value="직접배송">직접배송</option>
+                                </select>
+                                <span asp-validation-for="Input.ShippingMethod" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3" id="paymentMethodGroup" style="display:none;">
+                                <label asp-for="Input.PaymentMethod" class="form-label">
+                                    결제방법 <span class="text-danger" id="paymentRequired">*</span>
+                                </label>
+                                <select asp-for="Input.PaymentMethod" class="form-select" id="paymentMethod">
+                                    <option value="">-- 선택 --</option>
+                                    <option value="착불">착불</option>
+                                    <option value="선불">선불</option>
+                                </select>
+                                <span asp-validation-for="Input.PaymentMethod" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3" id="shippingDateGroup">
+                                <label asp-for="Input.ShippingDate" class="form-label">
+                                    출고일 <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Input.ShippingDate" type="date" class="form-control" />
+                                <span asp-validation-for="Input.ShippingDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3" id="shippingTimeGroup" style="display:none;">
+                                <label asp-for="Input.ShippingTime" class="form-label">
+                                    출고시간 <span class="text-danger" id="timeRequired">*</span>
+                                </label>
+                                <input asp-for="Input.ShippingTime" type="time" class="form-control" />
+                                <span asp-validation-for="Input.ShippingTime" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 품목 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">품목 정보</h5>
+                        <span class="text-muted">현재 줄: <strong id="currentRowCount">5</strong> / 최대: 20</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="itemsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="40">#</th>
+                                        <th width="200">품목 <span class="text-danger">*</span></th>
+                                        <th width="150">규격</th>
+                                        <th width="200">내용</th>
+                                        <th width="100">수량 <span class="text-danger">*</span></th>
+                                        <th width="100">단가</th>
+                                        <th width="250">디자인파일</th>
+                                        <th width="150">비고</th>
+                                        <th width="60"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsTableBody">
+                                    <!-- 초기 5줄 -->
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        <tr class="item-row" data-row-index="@i">
+                                            <td class="text-center row-number">@(i + 1)</td>
+                                            <td>
+                                                <select name="Input.Items[@i].ProductId" class="form-select form-select-sm product-select">
+                                                    <option value="">-- 선택 --</option>
+                                                    @foreach (var product in Model.Products)
+                                                    {
+                                                        <option value="@product.Id" data-spec="@product.DefaultSpec">
+                                                            [@product.Code] @product.Name
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="Input.Items[@i].Spec" class="form-control form-control-sm spec-input" placeholder="예: 1000x2000mm" />
+                                            </td>
+                                            <td>
+                                                <input type="text" name="Input.Items[@i].Description" class="form-control form-control-sm" placeholder="선택 입력" />
+                                            </td>
+                                            <td>
+                                                <input type="number" name="Input.Items[@i].Quantity" class="form-control form-control-sm" min="1" placeholder="0" />
+                                            </td>
+                                            <td>
+                                                <input type="number" name="Input.Items[@i].UnitPrice" class="form-control form-control-sm" min="0" placeholder="0" />
+                                            </td>
+                                            <td>
+                                                <input type="file" name="Input.Items[@i].DesignFile" class="form-control form-control-sm" accept=".ai,.psd,.pdf,.eps,.jpg,.png" />
+                                            </td>
+                                            <td>
+                                                <input type="text" name="Input.Items[@i].Remark" class="form-control form-control-sm" placeholder="선택 입력" />
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-outline-danger remove-row-btn" style="display:none;">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button type="button" class="btn btn-outline-primary" id="addRowBtn">
+                                <i class="bi bi-plus-circle"></i> 줄 추가
+                            </button>
+                            <div class="alert alert-info mb-0 py-2">
+                                <small>
+                                    <i class="bi bi-info-circle"></i> 
+                                    품목 선택 시 기본 규격이 자동 입력됩니다. 필요시 수정하세요.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="d-flex justify-content-between">
+                    <a asp-page="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> 취소
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                        <i class="bi bi-save"></i> 저장 및 카드 생성
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/order-form.js"></script>
+}

@@ -37,6 +37,9 @@ public class Order
     [StringLength(500)]
     public string? FilePath { get; set; } // 공유폴더 경로
     
+    [StringLength(20)]
+    public string Status { get; set; } = "작성"; // 작성/진행중/완료/취소
+    
     public int Version { get; set; } = 1; // 낙관적 락
     
     public DateTime CreatedAt { get; set; } = DateTime.Now;
