@@ -161,7 +161,23 @@
                                 <td>
                                     @if (!string.IsNullOrEmpty(item.DesignFileName))
                                     {
-                                        <small class="text-primary">@item.DesignFileName</small>
+                                        <div>
+                                            <small class="text-primary d-block">
+                                                <i class="fas fa-file me-1"></i>
+                                                @item.DesignFileName
+                                            </small>
+                                            @if (!string.IsNullOrEmpty(item.FilePath))
+                                            {
+                                                <div class="btn-group btn-group-sm mt-1" role="group">
+                                                    <a href="#" onclick="openFile('@item.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-outline-primary">
+                                                        <i class="fas fa-file-image"></i>
+                                                    </a>
+                                                    <a href="#" onclick="openFolder('@System.IO.Path.GetDirectoryName(item.FilePath)?.Replace("\\", "\\\\")'); return false;" class="btn btn-outline-secondary">
+                                                        <i class="fas fa-folder-open"></i>
+                                                    </a>
+                                                </div>
+                                            }
+                                        </div>
                                     }
                                     else
                                     {
@@ -236,3 +252,55 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // 파일 열기 함수
+        function openFile(filePath) {
+            if (!filePath) {
+                alert('파일 경로가 없습니다.');
+                return;
+            }
+            fetch('/api/files/open', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filePath: filePath })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('파일을 열었습니다:', filePath);
+                } else {
+                    alert('파일을 열 수 없습니다: ' + filePath);
+                }
+            }).catch(err => {
+                console.error('파일 열기 실패:', err);
+                alert('파일을 열 수 없습니다: ' + filePath);
+            });
+        }
+        
+        // 폴더 열기 함수
+        function openFolder(folderPath) {
+            if (!folderPath) {
+                alert('폴더 경로가 없습니다.');
+                return;
+            }
+            fetch('/api/files/open', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filePath: folderPath })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('폴더를 열었습니다:', folderPath);
+                } else {
+                    alert('폴더를 열 수 없습니다: ' + folderPath);
+                }
+            }).catch(err => {
+                console.error('폴더 열기 실패:', err);
+                alert('폴더를 열 수 없습니다: ' + folderPath);
+            });
+        }
+    </script>
+}

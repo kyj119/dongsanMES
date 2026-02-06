@@ -208,9 +208,14 @@
                                                         <i class="fas fa-file me-1"></i>
                                                         @item.OrderItem.DesignFileName
                                                     </small>
-                                                    <a href="#" onclick="openFile('@item.OrderItem.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-primary mt-1">
-                                                        <i class="fas fa-folder-open me-1"></i> 파일 열기
-                                                    </a>
+                                                    <div class="btn-group mt-1" role="group">
+                                                        <a href="#" onclick="openFile('@item.OrderItem.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-file-image me-1"></i> 파일 열기
+                                                        </a>
+                                                        <a href="#" onclick="openFolder('@System.IO.Path.GetDirectoryName(item.OrderItem.FilePath)?.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-secondary">
+                                                            <i class="fas fa-folder-open me-1"></i> 폴더 열기
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         }
@@ -224,9 +229,14 @@
                                                 <small class="text-warning d-block">(썸네일 없음)</small>
                                                 @if (!string.IsNullOrEmpty(item.OrderItem.FilePath))
                                                 {
-                                                    <a href="#" onclick="openFile('@item.OrderItem.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-primary mt-1">
-                                                        <i class="fas fa-folder-open me-1"></i> 파일 열기
-                                                    </a>
+                                                    <div class="btn-group mt-1" role="group">
+                                                        <a href="#" onclick="openFile('@item.OrderItem.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-file-image me-1"></i> 파일 열기
+                                                        </a>
+                                                        <a href="#" onclick="openFolder('@System.IO.Path.GetDirectoryName(item.OrderItem.FilePath)?.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-secondary">
+                                                            <i class="fas fa-folder-open me-1"></i> 폴더 열기
+                                                        </a>
+                                                    </div>
                                                 }
                                             </div>
                                         }
@@ -269,50 +279,62 @@
                     <div class="timeline">
                         @foreach (var log in Model.Card.EventLogs.OrderByDescending(l => l.CreatedAt))
                         {
-                            <div class="timeline-item mb-3">
-                                <div class="row">
-                                    <div class="col-md-2 text-muted">
-                                        <i class="fas fa-clock me-1"></i>
-                                        @log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
-                                    </div>
-                                    <div class="col-md-2">
-                                        @if (log.EventType == "작업시작")
-                                        {
-                                            <span class="badge bg-primary">작업시작</span>
-                                        }
-                                        else if (log.EventType == "작업완료")
-                                        {
-                                            <span class="badge bg-success">작업완료</span>
-                                        }
-                                        else if (log.EventType == "작업대기")
-                                        {
-                                            <span class="badge bg-warning text-dark">작업대기</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">@log.EventType</span>
-                                        }
-                                    </div>
-                                    <div class="col-md-3">
-                                        @if (!string.IsNullOrEmpty(log.CollectorId))
-                                        {
+                            var iconClass = log.EventType switch {
+                                "작업시작" => "fa-play-circle text-primary",
+                                "작업완료" => "fa-check-circle text-success",
+                                "작업대기" => "fa-clock text-warning",
+                                _ => "fa-circle text-secondary"
+                            };
+                            
+                            <div class="timeline-item mb-4 position-relative ps-4 border-start border-3" style="border-color: #dee2e6 !important;">
+                                <div class="position-absolute" style="left: -12px; top: 0;">
+                                    <i class="fas @iconClass fa-2x bg-white"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                @if (log.EventType == "작업시작")
+                                                {
+                                                    <span class="badge bg-primary">🚀 작업시작</span>
+                                                }
+                                                else if (log.EventType == "작업완료")
+                                                {
+                                                    <span class="badge bg-success">✅ 작업완료</span>
+                                                }
+                                                else if (log.EventType == "작업대기")
+                                                {
+                                                    <span class="badge bg-warning text-dark">⏳ 작업대기</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@log.EventType</span>
+                                                }
+                                            </h6>
+                                            @if (!string.IsNullOrEmpty(log.CollectorId))
+                                            {
+                                                <small class="text-muted">
+                                                    <i class="fas fa-desktop me-1"></i>
+                                                    출력기: @log.CollectorId
+                                                </small>
+                                            }
+                                        </div>
+                                        <div class="text-end">
                                             <small class="text-muted">
-                                                <i class="fas fa-desktop me-1"></i>
-                                                @log.CollectorId
+                                                <i class="fas fa-clock me-1"></i>
+                                                @log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
                                             </small>
-                                        }
+                                        </div>
                                     </div>
-                                    <div class="col-md-5">
-                                        @if (!string.IsNullOrEmpty(log.RawJson))
-                                        {
-                                            <details>
-                                                <summary class="text-muted" style="cursor: pointer">
-                                                    <small>원본 데이터 보기</small>
-                                                </summary>
-                                                <pre class="mt-2 p-2 bg-light border rounded" style="font-size: 0.75rem; max-height: 200px; overflow: auto;">@log.RawJson</pre>
-                                            </details>
-                                        }
-                                    </div>
+                                    @if (!string.IsNullOrEmpty(log.RawJson))
+                                    {
+                                        <details class="mt-2">
+                                            <summary class="text-muted" style="cursor: pointer; font-size: 0.875rem;">
+                                                <i class="fas fa-code me-1"></i>상세 데이터 보기
+                                            </summary>
+                                            <pre class="mt-2 p-3 bg-light border rounded" style="font-size: 0.75rem; max-height: 200px; overflow: auto;">@log.RawJson</pre>
+                                        </details>
+                                    }
                                 </div>
                             </div>
                         }
@@ -320,10 +342,13 @@
                 }
                 else
                 {
-                    <p class="text-muted text-center py-4">
-                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                        아직 작업 이력이 없습니다.
-                    </p>
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">
+                            아직 작업 이력이 없습니다.<br>
+                            <small>TOPAZ RIP에서 출력 시 Collector가 자동으로 작업 상태를 기록합니다.</small>
+                        </p>
+                    </div>
                 }
             </div>
         </div>
@@ -377,6 +402,30 @@
             }).catch(err => {
                 console.error('파일 열기 실패:', err);
                 alert('파일을 열 수 없습니다: ' + filePath);
+            });
+        }
+        
+        // 폴더 열기 함수
+        function openFolder(folderPath) {
+            if (!folderPath) {
+                alert('폴더 경로가 없습니다.');
+                return;
+            }
+            fetch('/api/files/open', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filePath: folderPath })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('폴더를 열었습니다:', folderPath);
+                } else {
+                    alert('폴더를 열 수 없습니다: ' + folderPath);
+                }
+            }).catch(err => {
+                console.error('폴더 열기 실패:', err);
+                alert('폴더를 열 수 없습니다: ' + folderPath);
             });
         }
     </script>
