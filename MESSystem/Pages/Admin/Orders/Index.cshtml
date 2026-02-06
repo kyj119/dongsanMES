@@ -110,7 +110,7 @@
                         {
                             <tr>
                                 <td colspan="9" class="text-center text-muted py-4">
-                                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.Status))
+                                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.ShippingMethod) || !string.IsNullOrEmpty(Model.DateFilter))
                                     {
                                         <span>검색 결과가 없습니다.</span>
                                     }

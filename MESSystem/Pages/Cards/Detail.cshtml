@@ -209,10 +209,10 @@
                                                         @item.OrderItem.DesignFileName
                                                     </small>
                                                     <div class="btn-group mt-1" role="group">
-                                                        <a href="#" onclick="openFile('@item.OrderItem.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-primary">
+                                                        <a href="#" onclick="openFile('@(item.OrderItem.FilePath?.Replace("\\", "\\\\") ?? "")'); return false;" class="btn btn-sm btn-outline-primary">
                                                             <i class="fas fa-file-image me-1"></i> 파일 열기
                                                         </a>
-                                                        <a href="#" onclick="openFolder('@System.IO.Path.GetDirectoryName(item.OrderItem.FilePath)?.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-secondary">
+                                                        <a href="#" onclick="openFolder('@(System.IO.Path.GetDirectoryName(item.OrderItem.FilePath ?? "")?.Replace("\\", "\\\\") ?? "")'); return false;" class="btn btn-sm btn-outline-secondary">
                                                             <i class="fas fa-folder-open me-1"></i> 폴더 열기
                                                         </a>
                                                     </div>
@@ -230,10 +230,10 @@
                                                 @if (!string.IsNullOrEmpty(item.OrderItem.FilePath))
                                                 {
                                                     <div class="btn-group mt-1" role="group">
-                                                        <a href="#" onclick="openFile('@item.OrderItem.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-primary">
+                                                        <a href="#" onclick="openFile('@(item.OrderItem.FilePath?.Replace("\\", "\\\\") ?? "")'); return false;" class="btn btn-sm btn-outline-primary">
                                                             <i class="fas fa-file-image me-1"></i> 파일 열기
                                                         </a>
-                                                        <a href="#" onclick="openFolder('@System.IO.Path.GetDirectoryName(item.OrderItem.FilePath)?.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-secondary">
+                                                        <a href="#" onclick="openFolder('@(System.IO.Path.GetDirectoryName(item.OrderItem.FilePath ?? "")?.Replace("\\", "\\\\") ?? "")'); return false;" class="btn btn-sm btn-outline-secondary">
                                                             <i class="fas fa-folder-open me-1"></i> 폴더 열기
                                                         </a>
                                                     </div>
