@@ -213,6 +213,47 @@ app.MapGet("/api/products/search", async (string? q, ApplicationDbContext db) =>
     return Results.Ok(products);
 });
 
+// 썸네일 이미지 제공 API
+app.MapGet("/api/thumbnail", async (string? path) =>
+{
+    if (string.IsNullOrEmpty(path))
+    {
+        return Results.BadRequest("경로가 제공되지 않았습니다.");
+    }
+
+    try
+    {
+        if (!File.Exists(path))
+        {
+            // 에러 이미지 반환
+            var errorImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "error-thumbnail.jpg");
+            if (File.Exists(errorImagePath))
+            {
+                var errorBytes = await File.ReadAllBytesAsync(errorImagePath);
+                return Results.File(errorBytes, "image/jpeg");
+            }
+            return Results.NotFound("파일을 찾을 수 없습니다.");
+        }
+
+        var bytes = await File.ReadAllBytesAsync(path);
+        var extension = Path.GetExtension(path).ToLower();
+        var contentType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".bmp" => "image/bmp",
+            _ => "application/octet-stream"
+        };
+
+        return Results.File(bytes, contentType);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"이미지를 불러올 수 없습니다: {ex.Message}");
+    }
+});
+
 app.Run();
 
 // DTO for API

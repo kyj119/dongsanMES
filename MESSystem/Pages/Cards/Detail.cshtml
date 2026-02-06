@@ -197,7 +197,7 @@
                                         {
                                             <div class="d-flex align-items-center">
                                                 <a href="#" onclick="showImageModal('@item.OrderItem.ThumbnailPath.Replace("\\", "\\\\")', '@item.OrderItem.DesignFileName'); return false;">
-                                                    <img src="file:///@item.OrderItem.ThumbnailPath" 
+                                                    <img src="/api/thumbnail?path=@System.Net.WebUtility.UrlEncode(item.OrderItem.ThumbnailPath)" 
                                                          alt="@item.OrderItem.DesignFileName" 
                                                          class="img-thumbnail"
                                                          style="max-width: 150px; max-height: 100px; cursor: pointer;"
@@ -354,7 +354,7 @@
         
         // 이미지 모달 표시
         function showImageModal(imagePath, fileName) {
-            document.getElementById('modalImage').src = 'file:///' + imagePath;
+            document.getElementById('modalImage').src = '/api/thumbnail?path=' + encodeURIComponent(imagePath);
             document.getElementById('imageModalTitle').textContent = fileName || '디자인 미리보기';
             var modal = new bootstrap.Modal(document.getElementById('imageModal'));
             modal.show();
