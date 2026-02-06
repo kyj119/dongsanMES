@@ -75,6 +75,165 @@ using (var scope = app.Services.CreateScope())
         );
         context.SaveChanges();
     }
+    
+    // 테스트용 거래처 데이터
+    if (!context.Clients.Any())
+    {
+        context.Clients.AddRange(
+            new MESSystem.Models.Client
+            {
+                Name = "서울시청",
+                Address = "서울시 중구 세종대로 110",
+                Phone = "02-2133-7000",
+                Mobile = "010-1234-5678",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Client
+            {
+                Name = "부산광역시청",
+                Address = "부산시 연제구 중앙대로 1001",
+                Phone = "051-888-1234",
+                Mobile = "010-2345-6789",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Client
+            {
+                Name = "대한상공회의소",
+                Address = "서울시 중구 세종대로 39",
+                Phone = "02-316-3114",
+                Mobile = "010-3456-7890",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Client
+            {
+                Name = "국립중앙박물관",
+                Address = "서울시 용산구 서빙고로 137",
+                Phone = "02-2077-9000",
+                Mobile = "010-4567-8901",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Client
+            {
+                Name = "한국관광공사",
+                Address = "서울시 중구 청계천로 40",
+                Phone = "02-729-9600",
+                Mobile = "010-5678-9012",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Client
+            {
+                Name = "롯데월드타워",
+                Address = "서울시 송파구 올림픽로 300",
+                Phone = "02-3213-5000",
+                Mobile = "010-6789-0123",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            }
+        );
+        context.SaveChanges();
+    }
+    
+    // 테스트용 품목 데이터
+    if (!context.Products.Any())
+    {
+        var categories = context.Categories.ToList();
+        var category1 = categories.First(c => c.Name == "태극기");
+        var category2 = categories.First(c => c.Name == "현수막");
+        var category3 = categories.First(c => c.Name == "간판");
+        
+        context.Products.AddRange(
+            // 태극기
+            new MESSystem.Models.Product
+            {
+                Code = "TG-001",
+                Name = "태극기 소형",
+                CategoryId = category1.Id,
+                DefaultSpec = "100x150cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Product
+            {
+                Code = "TG-002",
+                Name = "태극기 중형",
+                CategoryId = category1.Id,
+                DefaultSpec = "150x225cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Product
+            {
+                Code = "TG-003",
+                Name = "태극기 대형",
+                CategoryId = category1.Id,
+                DefaultSpec = "200x300cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            // 현수막
+            new MESSystem.Models.Product
+            {
+                Code = "HS-001",
+                Name = "현수막 일반",
+                CategoryId = category2.Id,
+                DefaultSpec = "90x120cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Product
+            {
+                Code = "HS-002",
+                Name = "현수막 대형",
+                CategoryId = category2.Id,
+                DefaultSpec = "180x240cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Product
+            {
+                Code = "HS-003",
+                Name = "현수막 특대",
+                CategoryId = category2.Id,
+                DefaultSpec = "300x600cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            // 간판
+            new MESSystem.Models.Product
+            {
+                Code = "GP-001",
+                Name = "아크릴 간판",
+                CategoryId = category3.Id,
+                DefaultSpec = "50x100cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Product
+            {
+                Code = "GP-002",
+                Name = "LED 간판",
+                CategoryId = category3.Id,
+                DefaultSpec = "100x200cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            },
+            new MESSystem.Models.Product
+            {
+                Code = "GP-003",
+                Name = "입간판",
+                CategoryId = category3.Id,
+                DefaultSpec = "60x180cm",
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            }
+        );
+        context.SaveChanges();
+    }
 }
 
 // Configure the HTTP request pipeline.

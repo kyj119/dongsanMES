@@ -18,10 +18,16 @@ namespace MESSystem.Pages.Admin.Orders
         public List<Order> Orders { get; set; } = new();
 
         [BindProperty(SupportsGet = true)]
-        public string? Status { get; set; }
-
-        [BindProperty(SupportsGet = true)]
         public string? SearchTerm { get; set; }
+        
+        [BindProperty(SupportsGet = true)]
+        public string? ShippingMethod { get; set; }
+        
+        [BindProperty(SupportsGet = true)]
+        public string? DateFilter { get; set; } // 오늘/이번주/이번달/전체
+        
+        [BindProperty(SupportsGet = true)]
+        public string? SortBy { get; set; } // 최신순/출고일순/우선순위순
 
         public async Task OnGetAsync()
         {
@@ -30,13 +36,7 @@ namespace MESSystem.Pages.Admin.Orders
                 .Include(o => o.Cards)
                 .AsQueryable();
 
-            // 상태 필터
-            if (!string.IsNullOrEmpty(Status))
-            {
-                query = query.Where(o => o.Status == Status);
-            }
-
-            // 검색어 필터
+            // 검색어 필터 (주문번호, 거래처명)
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 var searchLower = SearchTerm.ToLower();
@@ -44,12 +44,54 @@ namespace MESSystem.Pages.Admin.Orders
                     o.OrderNumber.ToLower().Contains(searchLower) || 
                     o.ClientName.ToLower().Contains(searchLower));
             }
+            
+            // 출고방법 필터
+            if (!string.IsNullOrEmpty(ShippingMethod))
+            {
+                query = query.Where(o => o.ShippingMethod == ShippingMethod);
+            }
+            
+            // 날짜 범위 필터
+            if (!string.IsNullOrEmpty(DateFilter))
+            {
+                var today = DateTime.Today;
+                switch (DateFilter)
+                {
+                    case "오늘":
+                        query = query.Where(o => o.ShippingDate.Date == today);
+                        break;
+                    case "이번주":
+                        var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+                        var endOfWeek = startOfWeek.AddDays(7);
+                        query = query.Where(o => o.ShippingDate >= startOfWeek && o.ShippingDate < endOfWeek);
+                        break;
+                    case "이번달":
+                        var startOfMonth = new DateTime(today.Year, today.Month, 1);
+                        var endOfMonth = startOfMonth.AddMonths(1);
+                        query = query.Where(o => o.ShippingDate >= startOfMonth && o.ShippingDate < endOfMonth);
+                        break;
+                    // "전체"는 필터 없음
+                }
+            }
 
-            // 정렬: 삭제되지 않은 것 우선, 최신순
-            Orders = await query
-                .OrderBy(o => o.IsDeleted)
-                .ThenByDescending(o => o.CreatedAt)
-                .ToListAsync();
+            // 정렬
+            query = query.OrderBy(o => o.IsDeleted); // 삭제되지 않은 것 우선
+            
+            if (!string.IsNullOrEmpty(SortBy))
+            {
+                query = SortBy switch
+                {
+                    "출고일순" => query.ThenBy(o => o.ShippingDate).ThenBy(o => o.ShippingTime),
+                    "우선순위순" => query.ThenBy(o => o.Priority).ThenBy(o => o.ShippingDate),
+                    _ => query.ThenByDescending(o => o.CreatedAt) // 최신순 (기본값)
+                };
+            }
+            else
+            {
+                query = query.ThenByDescending(o => o.CreatedAt); // 기본값: 최신순
+            }
+
+            Orders = await query.ToListAsync();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(int id, string? reason)
