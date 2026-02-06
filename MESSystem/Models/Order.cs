@@ -37,6 +37,12 @@ public class Order
     
     public TimeSpan? ShippingTime { get; set; }
     
+    /// <summary>
+    /// 작업 우선순위 (1=최우선, 2=보통, 3=낮음, 4=매우 낮음)
+    /// 배송방법에 따라 기본값 자동 설정
+    /// </summary>
+    public int Priority { get; set; } = 2;
+    
     [StringLength(500)]
     public string? FilePath { get; set; } // 공유폴더 경로
     

@@ -55,6 +55,11 @@ namespace MESSystem.Pages.Admin.Orders
             public DateTime ShippingDate { get; set; } = DateTime.Today;
 
             public TimeSpan? ShippingTime { get; set; }
+            
+            /// <summary>
+            /// 작업 우선순위 (1=최우선, 2=보통, 3=낮음, 4=매우 낮음)
+            /// </summary>
+            public int Priority { get; set; } = 2;
 
             // 품목 정보
             public List<OrderItemInput> Items { get; set; } = new();
@@ -109,6 +114,10 @@ namespace MESSystem.Pages.Admin.Orders
             {
                 // 1. 주문번호 생성
                 var orderNumber = _orderNumberService.GenerateOrderNumber();
+                
+                // 배송방법에 따른 기본값 설정
+                var defaultPriority = ShippingMethodHelper.GetDefaultPriority(Input.ShippingMethod);
+                var defaultShippingTime = ShippingMethodHelper.GetDefaultShippingTime(Input.ShippingMethod);
 
                 // 2. 주문서 생성
                 var order = new Order
@@ -121,7 +130,8 @@ namespace MESSystem.Pages.Admin.Orders
                     ShippingMethod = Input.ShippingMethod,
                     PaymentMethod = Input.PaymentMethod,
                     ShippingDate = Input.ShippingDate,
-                    ShippingTime = Input.ShippingTime,
+                    ShippingTime = Input.ShippingTime ?? defaultShippingTime,
+                    Priority = Input.Priority > 0 ? Input.Priority : defaultPriority,
                     Status = "작성",
                     CreatedAt = DateTime.Now,
                     CreatedBy = User.Identity?.Name ?? "System"
