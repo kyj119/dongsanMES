@@ -1,7 +1,90 @@
+using MESSystem.Models;
+
 namespace MESSystem.Services;
+
+/// <summary>
+/// 작업 진행 정보 클래스
+/// </summary>
+public class WorkProgress
+{
+    public int TotalWorkload { get; set; }
+    public int RemainingWorkload { get; set; }
+    public int ProgressPercentage { get; set; }
+    public int EstimatedMinutesRemaining { get; set; }
+    public TimeSpan TimeUntilDeadline { get; set; }
+    public string AlertLevel { get; set; } = "여유";
+}
 
 public static class WorkProgressHelper
 {
+    /// <summary>
+    /// 카드의 전체 작업 진행 정보 계산
+    /// </summary>
+    public static WorkProgress CalculateProgress(Card card)
+    {
+        // 1. 총 작업량 계산
+        var totalWorkload = card.CardItems.Sum(ci => ci.OrderItem.Quantity);
+        
+        // 2. 진행률 계산
+        var progressRate = card.Status switch
+        {
+            "대기" => 0.0,
+            "작업중" => 0.5,
+            "완료" => 1.0,
+            "보류" => 0.25,
+            _ => 0.0
+        };
+        
+        // 3. 남은 작업량 계산
+        var remainingWorkload = (int)(totalWorkload * (1.0 - progressRate));
+        
+        // 4. 예상 완료 시간 계산 (품목당 10분 가정)
+        const int minutesPerItem = 10;
+        var estimatedMinutes = remainingWorkload * minutesPerItem;
+        
+        // 5. 마감까지 남은 시간 계산
+        var deadline = card.Order.ShippingDate.Date;
+        if (card.Order.ShippingTime.HasValue)
+        {
+            deadline = deadline.Add(card.Order.ShippingTime.Value);
+        }
+        else
+        {
+            deadline = deadline.AddHours(23).AddMinutes(59);
+        }
+        
+        var timeUntilDeadline = deadline - DateTime.Now;
+        
+        // 6. 알림 레벨 계산
+        string alertLevel;
+        if (timeUntilDeadline.TotalMinutes < 0)
+        {
+            alertLevel = "긴급"; // 시간 초과
+        }
+        else if (timeUntilDeadline.TotalMinutes < estimatedMinutes)
+        {
+            alertLevel = "긴급"; // 예상 시간보다 적음
+        }
+        else if (timeUntilDeadline.TotalMinutes < estimatedMinutes * 1.5)
+        {
+            alertLevel = "주의"; // 여유 50% 미만
+        }
+        else
+        {
+            alertLevel = "여유";
+        }
+        
+        return new WorkProgress
+        {
+            TotalWorkload = totalWorkload,
+            RemainingWorkload = remainingWorkload,
+            ProgressPercentage = (int)(progressRate * 100),
+            EstimatedMinutesRemaining = estimatedMinutes,
+            TimeUntilDeadline = timeUntilDeadline,
+            AlertLevel = alertLevel
+        };
+    }
+    
     /// <summary>
     /// 카드의 작업 진행률 계산
     /// </summary>
