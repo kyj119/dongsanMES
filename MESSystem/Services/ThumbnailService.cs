@@ -102,9 +102,9 @@ public class ThumbnailService
             // -sDEVICE=jpeg : JPEG 출력
             // -r300 : 300 DPI 해상도 (고품질)
             // -dJPEGQ=95 : JPEG 품질 95%
-            // -g2400x2400 : 최대 크기 2400x2400 (비율 유지)
-            // -dFIXEDMEDIA : 미디어 크기 고정
-            var arguments = $"-dNOPAUSE -dBATCH -dSAFER -sDEVICE=jpeg -r300 -dJPEGQ=95 -g2400x2400 -dFIXEDMEDIA -sOutputFile=\"{jpgPath}\" \"{epsPath}\"";
+            // -dEPSCrop : EPS BoundingBox에 맞춰 자르기 (원본 비율 유지)
+            // -dMaxBitmap=2147483647 : 큰 이미지 처리 가능
+            var arguments = $"-dNOPAUSE -dBATCH -dSAFER -sDEVICE=jpeg -r300 -dJPEGQ=95 -dEPSCrop -dMaxBitmap=2147483647 -sOutputFile=\"{jpgPath}\" \"{epsPath}\"";
             
             var processInfo = new ProcessStartInfo
             {
