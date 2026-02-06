@@ -107,17 +107,8 @@
                                 <input asp-for="Input.ShippingTime" type="time" class="form-control" />
                                 <span asp-validation-for="Input.ShippingTime" class="text-danger"></span>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Input.Priority" class="form-label">
-                                    우선순위 <span class="text-muted">(수정 가능)</span>
-                                </label>
-                                <select asp-for="Input.Priority" class="form-select">
-                                    <option value="1">1 - 최우선 (퀵/용차)</option>
-                                    <option value="2">2 - 높음 (대신택배/대신화물)</option>
-                                    <option value="3">3 - 보통 (한진택배)</option>
-                                    <option value="4">4 - 낮음 (방문수령/직접배송)</option>
-                                </select>
-                            </div>
+                            <!-- 우선순위는 자동 설정됨 (UI 숨김) -->
+                            <input type="hidden" asp-for="Input.Priority" />
                         </div>
                     </div>
                 </div>

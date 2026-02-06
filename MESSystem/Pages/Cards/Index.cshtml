@@ -215,7 +215,7 @@
                         </div>
                         
                         <!-- 작업 진행 정보 -->
-                        @if (progressInfo != null)
+                        @if (progressInfo != null && card.Status != "완료")
                         {
                             var alertClass = progressInfo.AlertLevel switch {
                                 "긴급" => "alert-danger",
@@ -235,19 +235,12 @@
                                         {
                                             <div>
                                                 <i class="fas fa-clock"></i>
-                                                <small>남은시간: @string.Format("{0:D}시간 {1:D}분", (int)progressInfo.TimeUntilDeadline.TotalHours, progressInfo.TimeUntilDeadline.Minutes)</small>
+                                                <small>출고까지: @string.Format("{0:D}시간 {1:D}분", (int)progressInfo.TimeUntilDeadline.TotalHours, progressInfo.TimeUntilDeadline.Minutes)</small>
                                             </div>
                                         }
                                         else
                                         {
-                                            <div><i class="fas fa-exclamation-triangle"></i> <small class="text-danger">시간초과!</small></div>
-                                        }
-                                        @if (progressInfo.EstimatedMinutesRemaining > 0)
-                                        {
-                                            <div>
-                                                <i class="fas fa-hourglass-half"></i>
-                                                <small>예상: @(progressInfo.EstimatedMinutesRemaining)분</small>
-                                            </div>
+                                            <div><i class="fas fa-exclamation-triangle"></i> <small class="text-danger">출고시간 경과!</small></div>
                                         }
                                     </div>
                                 </div>

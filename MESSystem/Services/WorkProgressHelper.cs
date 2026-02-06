@@ -10,7 +10,6 @@ public class WorkProgress
     public int TotalWorkload { get; set; }
     public int RemainingWorkload { get; set; }
     public int ProgressPercentage { get; set; }
-    public int EstimatedMinutesRemaining { get; set; }
     public TimeSpan TimeUntilDeadline { get; set; }
     public string AlertLevel { get; set; } = "여유";
 }
@@ -18,7 +17,7 @@ public class WorkProgress
 public static class WorkProgressHelper
 {
     /// <summary>
-    /// 카드의 전체 작업 진행 정보 계산
+    /// 카드의 전체 작업 진행 정보 계산 (간소화 버전)
     /// </summary>
     public static WorkProgress CalculateProgress(Card card)
     {
@@ -38,11 +37,7 @@ public static class WorkProgressHelper
         // 3. 남은 작업량 계산
         var remainingWorkload = (int)(totalWorkload * (1.0 - progressRate));
         
-        // 4. 예상 완료 시간 계산 (품목당 10분 가정)
-        const int minutesPerItem = 10;
-        var estimatedMinutes = remainingWorkload * minutesPerItem;
-        
-        // 5. 마감까지 남은 시간 계산
+        // 4. 마감까지 남은 시간 계산
         var deadline = card.Order.ShippingDate.Date;
         if (card.Order.ShippingTime.HasValue)
         {
@@ -55,19 +50,19 @@ public static class WorkProgressHelper
         
         var timeUntilDeadline = deadline - DateTime.Now;
         
-        // 6. 알림 레벨 계산
+        // 5. 알림 레벨 계산 (간소화: 남은 시간 기준만)
         string alertLevel;
-        if (timeUntilDeadline.TotalMinutes < 0)
+        if (timeUntilDeadline.TotalHours < 0)
         {
             alertLevel = "긴급"; // 시간 초과
         }
-        else if (timeUntilDeadline.TotalMinutes < estimatedMinutes)
+        else if (timeUntilDeadline.TotalHours < 2)
         {
-            alertLevel = "긴급"; // 예상 시간보다 적음
+            alertLevel = "긴급"; // 2시간 이내
         }
-        else if (timeUntilDeadline.TotalMinutes < estimatedMinutes * 1.5)
+        else if (timeUntilDeadline.TotalHours < 4)
         {
-            alertLevel = "주의"; // 여유 50% 미만
+            alertLevel = "주의"; // 4시간 이내
         }
         else
         {
@@ -79,7 +74,6 @@ public static class WorkProgressHelper
             TotalWorkload = totalWorkload,
             RemainingWorkload = remainingWorkload,
             ProgressPercentage = (int)(progressRate * 100),
-            EstimatedMinutesRemaining = estimatedMinutes,
             TimeUntilDeadline = timeUntilDeadline,
             AlertLevel = alertLevel
         };

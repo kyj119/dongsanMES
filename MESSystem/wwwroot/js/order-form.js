@@ -259,7 +259,7 @@ function initializeShippingMethodToggle() {
     const shippingTimeGroup = document.getElementById('shippingTimeGroup');
     const paymentRequired = document.getElementById('paymentRequired');
     const timeRequired = document.getElementById('timeRequired');
-    const prioritySelect = document.getElementById('prioritySelect');
+    const priorityHidden = document.getElementById('priorityHidden');
 
     shippingMethodSelect.addEventListener('change', function() {
         const method = this.value;
@@ -284,19 +284,15 @@ function initializeShippingMethodToggle() {
             document.querySelector('input[name="Input.ShippingTime"]').value = '';
         }
 
-        // 우선순위 자동 설정 (방안 C)
+        // 우선순위 자동 설정 (hidden 필드)
         if (['퀵', '용차'].includes(method)) {
-            prioritySelect.value = '1'; // 최우선
-            showToast('🚀 최우선 작업으로 설정되었습니다!', 'success');
+            priorityHidden.value = '1'; // 최우선
         } else if (['대신택배', '대신화물'].includes(method)) {
-            prioritySelect.value = '2'; // 높음
-            showToast('⚠️ 높은 우선순위로 설정되었습니다. (기본 16:00 마감)', 'info');
+            priorityHidden.value = '2'; // 높음
         } else if (['한진택배'].includes(method)) {
-            prioritySelect.value = '3'; // 보통
-            showToast('📦 보통 우선순위로 설정되었습니다. (기본 18:00 마감)', 'info');
+            priorityHidden.value = '3'; // 보통
         } else if (['방문수령', '직접배송'].includes(method)) {
-            prioritySelect.value = '4'; // 낮음
-            showToast('✅ 낮은 우선순위로 설정되었습니다.', 'info');
+            priorityHidden.value = '4'; // 낮음
         }
     });
 }
