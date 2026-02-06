@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MESSystem.Data;
 using MESSystem.Models;
+using MESSystem.Services;
 
 namespace MESSystem.Pages.Cards
 {
@@ -17,6 +18,7 @@ namespace MESSystem.Pages.Cards
 
         public List<Card> Cards { get; set; } = new();
         public List<Category> Categories { get; set; } = new();
+        public Dictionary<int, WorkProgress> CardProgressInfo { get; set; } = new();
 
         [BindProperty(SupportsGet = true)]
         public string? Status { get; set; }
@@ -64,19 +66,26 @@ namespace MESSystem.Pages.Cards
                                         c.Order.ClientName.Contains(SearchTerm));
             }
 
-            // 정렬: 출고일시 오름차순 (가장 빨리 출고해야 할 것부터)
-            // SQLite는 TimeSpan을 ORDER BY에서 지원하지 않으므로 먼저 날짜만 정렬
+            // 정렬: 우선순위 → 출고일시 → 카드번호
             var tempCards = await query
-                .OrderBy(c => c.Order.ShippingDate)
+                .OrderBy(c => c.Order.Priority)
+                .ThenBy(c => c.Order.ShippingDate)
                 .ThenBy(c => c.CardNumber)
                 .ToListAsync();
             
             // 메모리에서 ShippingTime으로 추가 정렬
             Cards = tempCards
-                .OrderBy(c => c.Order.ShippingDate)
+                .OrderBy(c => c.Order.Priority)
+                .ThenBy(c => c.Order.ShippingDate)
                 .ThenBy(c => c.Order.ShippingTime)
                 .ThenBy(c => c.CardNumber)
                 .ToList();
+
+            // 작업 진행 정보 계산
+            foreach (var card in Cards)
+            {
+                CardProgressInfo[card.Id] = WorkProgressHelper.CalculateProgress(card);
+            }
         }
     }
 }

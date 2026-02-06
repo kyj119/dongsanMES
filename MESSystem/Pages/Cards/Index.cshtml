@@ -192,6 +192,7 @@
                 var isUrgent = card.Order.ShippingDate.Date == DateTime.Today;
                 var cardItems = card.CardItems.ToList();
                 var firstItem = cardItems.FirstOrDefault();
+                var progressInfo = Model.CardProgressInfo.ContainsKey(card.Id) ? Model.CardProgressInfo[card.Id] : null;
                 
                 <div class="col-lg-6 col-xl-4 mb-4">
                     <div class="card work-card status-@card.Status shadow-sm h-100">
@@ -212,6 +213,51 @@
                             </div>
                             <span class="badge badge-@card.Status fs-6">@card.Status</span>
                         </div>
+                        
+                        <!-- 작업 진행 정보 -->
+                        @if (progressInfo != null)
+                        {
+                            var alertClass = progressInfo.AlertLevel switch {
+                                "긴급" => "alert-danger",
+                                "주의" => "alert-warning",
+                                "여유" => "alert-success",
+                                _ => "alert-info"
+                            };
+                            
+                            <div class="alert @alertClass mb-0 rounded-0 py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@progressInfo.AlertLevel</strong>
+                                        <span class="ms-2">진행률: @progressInfo.ProgressPercentage%</span>
+                                    </div>
+                                    <div class="text-end">
+                                        @if (progressInfo.TimeUntilDeadline.TotalHours > 0)
+                                        {
+                                            <div>
+                                                <i class="fas fa-clock"></i>
+                                                <small>남은시간: @string.Format("{0:D}시간 {1:D}분", (int)progressInfo.TimeUntilDeadline.TotalHours, progressInfo.TimeUntilDeadline.Minutes)</small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div><i class="fas fa-exclamation-triangle"></i> <small class="text-danger">시간초과!</small></div>
+                                        }
+                                        @if (progressInfo.EstimatedMinutesRemaining > 0)
+                                        {
+                                            <div>
+                                                <i class="fas fa-hourglass-half"></i>
+                                                <small>예상: @(progressInfo.EstimatedMinutesRemaining)분</small>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="progress mt-2" style="height: 8px;">
+                                    <div class="progress-bar @(progressInfo.AlertLevel == "긴급" ? "bg-danger" : progressInfo.AlertLevel == "주의" ? "bg-warning" : "bg-success")" 
+                                         role="progressbar" 
+                                         style="width: @progressInfo.ProgressPercentage%"></div>
+                                </div>
+                            </div>
+                        }
                         
                         <div class="card-body">
                             <!-- 거래처 정보 -->

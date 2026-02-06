@@ -56,6 +56,8 @@ namespace MESSystem.Pages.Admin.Orders
 
             public TimeSpan? ShippingTime { get; set; }
 
+            public int Priority { get; set; } = 2;
+
             // 낙관적 락
             public int Version { get; set; }
         }
@@ -109,6 +111,7 @@ namespace MESSystem.Pages.Admin.Orders
                 PaymentMethod = order.PaymentMethod,
                 ShippingDate = order.ShippingDate,
                 ShippingTime = order.ShippingTime,
+                Priority = order.Priority,
                 Version = order.Version,
                 Items = order.OrderItems.OrderBy(i => i.LineNumber).Select(item => new OrderItemInput
                 {
@@ -180,6 +183,7 @@ namespace MESSystem.Pages.Admin.Orders
                 order.PaymentMethod = Input.PaymentMethod;
                 order.ShippingDate = Input.ShippingDate;
                 order.ShippingTime = Input.ShippingTime;
+                order.Priority = Input.Priority;
                 order.UpdatedAt = DateTime.Now;
                 order.Version++; // 버전 증가
 
