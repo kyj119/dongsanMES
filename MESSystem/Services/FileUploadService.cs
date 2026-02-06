@@ -6,13 +6,13 @@ namespace MESSystem.Services;
 public class FileUploadService
 {
     private readonly string _sharedFolderPath;
-    private readonly ThumbnailService _thumbnailService;
+    private readonly ThumbnailService? _thumbnailService;
     private readonly ILogger<FileUploadService> _logger;
     
     public FileUploadService(
         IConfiguration configuration, 
-        ThumbnailService thumbnailService,
-        ILogger<FileUploadService> logger)
+        ILogger<FileUploadService> logger,
+        ThumbnailService? thumbnailService = null)
     {
         // appsettings.json에서 경로 읽기 또는 기본값 사용
         _sharedFolderPath = configuration["SharedFolderPath"] ?? @"Z:\Designs\";
@@ -65,7 +65,7 @@ public class FileUploadService
 
         // EPS 파일이면 썸네일 생성
         string? thumbnailPath = null;
-        if (extension.ToLower() == ".eps")
+        if (extension.ToLower() == ".eps" && _thumbnailService != null)
         {
             _logger.LogInformation("EPS 파일 감지, 썸네일 생성 시작: {FilePath}", fullPath);
             thumbnailPath = await _thumbnailService.GenerateThumbnailAsync(fullPath);
@@ -78,6 +78,10 @@ public class FileUploadService
             {
                 _logger.LogWarning("썸네일 생성 실패: {FilePath}", fullPath);
             }
+        }
+        else if (extension.ToLower() == ".eps")
+        {
+            _logger.LogWarning("ThumbnailService가 등록되지 않아 썸네일을 생성할 수 없습니다.");
         }
 
         return (fullPath, thumbnailPath);

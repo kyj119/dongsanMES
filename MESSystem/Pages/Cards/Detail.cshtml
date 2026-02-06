@@ -174,10 +174,10 @@
                             <tr>
                                 <th style="width: 5%">#</th>
                                 <th style="width: 15%">품목코드</th>
-                                <th style="width: 20%">품목명</th>
+                                <th style="width: 15%">품목명</th>
                                 <th style="width: 10%">수량</th>
-                                <th style="width: 15%">규격</th>
-                                <th style="width: 20%">디자인 파일</th>
+                                <th style="width: 10%">규격</th>
+                                <th style="width: 25%">디자인 미리보기</th>
                                 <th style="width: 15%">비고</th>
                             </tr>
                         </thead>
@@ -193,12 +193,42 @@
                                     </td>
                                     <td>@item.OrderItem.Spec</td>
                                     <td>
-                                        @if (!string.IsNullOrEmpty(item.OrderItem.DesignFileName))
+                                        @if (!string.IsNullOrEmpty(item.OrderItem.ThumbnailPath) && System.IO.File.Exists(item.OrderItem.ThumbnailPath))
                                         {
-                                            <small class="text-muted">
-                                                <i class="fas fa-file me-1"></i>
-                                                @item.OrderItem.DesignFileName
-                                            </small>
+                                            <div class="d-flex align-items-center">
+                                                <a href="#" onclick="showImageModal('@item.OrderItem.ThumbnailPath.Replace("\\", "\\\\")', '@item.OrderItem.DesignFileName'); return false;">
+                                                    <img src="file:///@item.OrderItem.ThumbnailPath" 
+                                                         alt="@item.OrderItem.DesignFileName" 
+                                                         class="img-thumbnail"
+                                                         style="max-width: 150px; max-height: 100px; cursor: pointer;"
+                                                         onerror="this.onerror=null; this.src='/images/error-thumbnail.jpg';" />
+                                                </a>
+                                                <div class="ms-2">
+                                                    <small class="text-muted d-block">
+                                                        <i class="fas fa-file me-1"></i>
+                                                        @item.OrderItem.DesignFileName
+                                                    </small>
+                                                    <a href="#" onclick="openFile('@item.OrderItem.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-primary mt-1">
+                                                        <i class="fas fa-folder-open me-1"></i> 파일 열기
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (!string.IsNullOrEmpty(item.OrderItem.DesignFileName))
+                                        {
+                                            <div>
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-file me-1"></i>
+                                                    @item.OrderItem.DesignFileName
+                                                </small>
+                                                <small class="text-warning d-block">(썸네일 없음)</small>
+                                                @if (!string.IsNullOrEmpty(item.OrderItem.FilePath))
+                                                {
+                                                    <a href="#" onclick="openFile('@item.OrderItem.FilePath.Replace("\\", "\\\\")'); return false;" class="btn btn-sm btn-outline-primary mt-1">
+                                                        <i class="fas fa-folder-open me-1"></i> 파일 열기
+                                                    </a>
+                                                }
+                                            </div>
                                         }
                                         else
                                         {
@@ -300,11 +330,54 @@
     }
 </div>
 
+<!-- 이미지 확대 모달 -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalTitle">디자인 미리보기</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="디자인 이미지" class="img-fluid" style="max-height: 80vh;" />
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         // 자동 새로고침 (60초마다)
         setTimeout(function() {
             location.reload();
         }, 60000);
+        
+        // 이미지 모달 표시
+        function showImageModal(imagePath, fileName) {
+            document.getElementById('modalImage').src = 'file:///' + imagePath;
+            document.getElementById('imageModalTitle').textContent = fileName || '디자인 미리보기';
+            var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+        
+        // 파일 열기 함수
+        function openFile(filePath) {
+            fetch('/api/files/open', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filePath: filePath })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('파일 탐색기에서 파일을 열었습니다:', filePath);
+                } else {
+                    alert('파일을 열 수 없습니다: ' + filePath);
+                }
+            }).catch(err => {
+                console.error('파일 열기 실패:', err);
+                alert('파일을 열 수 없습니다: ' + filePath);
+            });
+        }
     </script>
 }
