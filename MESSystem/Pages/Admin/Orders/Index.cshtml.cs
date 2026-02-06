@@ -75,24 +75,24 @@ namespace MESSystem.Pages.Admin.Orders
                 }
             }
 
-            // 정렬
-            query = query.OrderBy(o => o.IsDeleted); // 삭제되지 않은 것 우선
+            // 정렬 (IOrderedQueryable로 명시적 처리)
+            IOrderedQueryable<Order> orderedQuery = query.OrderBy(o => o.IsDeleted); // 삭제되지 않은 것 우선
             
             if (!string.IsNullOrEmpty(SortBy))
             {
-                query = SortBy switch
+                orderedQuery = SortBy switch
                 {
-                    "출고일순" => query.ThenBy(o => o.ShippingDate).ThenBy(o => o.ShippingTime),
-                    "우선순위순" => query.ThenBy(o => o.Priority).ThenBy(o => o.ShippingDate),
-                    _ => query.ThenByDescending(o => o.CreatedAt) // 최신순 (기본값)
+                    "출고일순" => orderedQuery.ThenBy(o => o.ShippingDate).ThenBy(o => o.ShippingTime),
+                    "우선순위순" => orderedQuery.ThenBy(o => o.Priority).ThenBy(o => o.ShippingDate),
+                    _ => orderedQuery.ThenByDescending(o => o.CreatedAt) // 최신순 (기본값)
                 };
             }
             else
             {
-                query = query.ThenByDescending(o => o.CreatedAt); // 기본값: 최신순
+                orderedQuery = orderedQuery.ThenByDescending(o => o.CreatedAt); // 기본값: 최신순
             }
 
-            Orders = await query.ToListAsync();
+            Orders = await orderedQuery.ToListAsync();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(int id, string? reason)
