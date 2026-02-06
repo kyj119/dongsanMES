@@ -109,7 +109,8 @@ public class FileParserService
 
     /// <summary>
     /// 파일명에서 카드번호 추출
-    /// 예: 20260204-01-1.bmp.tsc → 20260204-01-1
+    /// 예: 20260204-01-1_달력.bmp.tsc → 20260204-01-1
+    /// 예: 20260206-03-2.bmp.tsc → 20260206-03-2
     /// </summary>
     public string? ExtractCardNumber(string fileName)
     {
@@ -126,6 +127,13 @@ public class FileParserService
             {
                 nameWithoutExt = Path.GetFileNameWithoutExtension(nameWithoutExt);
                 Console.WriteLine($"[DEBUG] 2차 확장자 제거: {nameWithoutExt}");
+            }
+
+            // 언더스코어(_) 이후 텍스트 제거 (예: 20260206-03-2_달력 → 20260206-03-2)
+            if (nameWithoutExt.Contains('_'))
+            {
+                nameWithoutExt = nameWithoutExt.Split('_')[0];
+                Console.WriteLine($"[DEBUG] 언더스코어 이후 제거: {nameWithoutExt}");
             }
 
             // 카드번호 형식 검증: YYYYMMDD-XX-Y
