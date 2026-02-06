@@ -1,0 +1,96 @@
+# .NET Core
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code directories
+.vscode/
+
+# Mac files
+.DS_Store
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# wwwroot/uploads (디자인 파일)
+wwwroot/uploads/
+wwwroot/uploads/*
+
+# 공유 폴더 경로 (UNC Path) - Windows에서 Git 충돌 방지
+**/\\\\192.168.0.122\\**
+**/\\192.168.0.122\\**
+**\\192.168.0.122\\**
+\\\\192.168.0.122\\**
+
+# Designs 폴더 (공유 폴더 마운트 포인트)
+**/Designs/
+MESSystem/Designs/
+
+# Node.js (대시보드 테스트용)
+node_modules/
+package-lock.json
+
+# 환경 설정 파일
+appsettings.Development.json
+appsettings.Production.json
+
+# 로그 파일
+*.log
+logs/
+
+# 임시 파일
+*.tmp
+*.temp
+*.swp
+*~
+
+# 백업 파일
+*.bak
+*.backup
