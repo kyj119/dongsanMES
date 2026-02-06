@@ -115,25 +115,36 @@ public class FileParserService
     {
         try
         {
+            Console.WriteLine($"[DEBUG] 원본 파일명: {fileName}");
+            
             // 확장자 제거
             var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+            Console.WriteLine($"[DEBUG] 1차 확장자 제거: {nameWithoutExt}");
             
             // .bmp.tsc 같은 이중 확장자 처리
             if (nameWithoutExt.Contains('.'))
             {
                 nameWithoutExt = Path.GetFileNameWithoutExtension(nameWithoutExt);
+                Console.WriteLine($"[DEBUG] 2차 확장자 제거: {nameWithoutExt}");
             }
 
             // 카드번호 형식 검증: YYYYMMDD-XX-Y
             if (IsValidCardNumber(nameWithoutExt))
             {
+                Console.WriteLine($"[DEBUG] ✅ 유효한 카드번호: {nameWithoutExt}");
                 return nameWithoutExt;
+            }
+            else
+            {
+                Console.WriteLine($"[DEBUG] ❌ 유효하지 않은 카드번호: {nameWithoutExt}");
+                Console.WriteLine($"[DEBUG] 예상 형식: YYYYMMDD-XX-Y (예: 20260206-01-1)");
             }
 
             return null;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"[DEBUG] 예외 발생: {ex.Message}");
             return null;
         }
     }
