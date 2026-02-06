@@ -1,0 +1,47 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║          🚀 MES 시스템 배포 패키지 - 시작 가이드              ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+📦 3가지 패키지 구성:
+
+1️⃣  1_MESServer_Package/
+    → MES 서버 PC용 (사무실/서버실)
+    → MESSystem 폴더 전체 필요
+    
+2️⃣  2_Collector_Package/
+    → 출력기 PC용 (TOPAZ RIP 설치된 PC)
+    → MESCollector 폴더 + 설치 스크립트
+    
+3️⃣  3_Documentation_Package/
+    → 참고 문서 (개발자, 관리자용)
+
+
+🎯 빠른 설치 순서:
+
+[MES 서버 설치]
+1. 1_MESServer_Package/복사할파일.txt 확인
+2. MESSystem 폴더를 서버 PC로 복사
+3. dotnet run 또는 IIS 배포
+
+[Collector 설치] - 출력기마다
+1. 2_Collector_Package/복사할파일.txt 확인
+2. MESCollector 폴더를 출력기 PC로 복사
+3. install_collector.bat 실행
+4. appsettings.json 수정 (ServerUrl, CollectorId)
+5. dotnet run 테스트
+
+
+⚠️  중요: 각 폴더의 "복사할파일.txt"를 먼저 읽어보세요!
+
+
+📖 자세한 내용:
+   → README_배포패키지.md 참고
+
+
+📞 GitHub:
+   https://github.com/kyj119/dongsanMES
+
+
+마지막 업데이트: 2026-02-06

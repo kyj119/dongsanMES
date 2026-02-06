@@ -1,0 +1,49 @@
+📁 3_Documentation_Package - 문서 모음
+========================================
+
+🎯 대상: 개발자, 시스템 관리자 (참고용)
+
+📂 필요한 파일:
+-----------------------------------------
+
+⭐ 필수 문서:
+  - README.md                    (프로젝트 전체 개요)
+  - QUICK_START.md               (빠른 시작 가이드)
+
+📘 서버 관련:
+  - DEPLOYMENT_GUIDE.md          (서버 배포 가이드)
+  - SERVER_TRANSFER_GUIDE.md     (서버 이전 가이드)
+  - SERVER_DEBUG_GUIDE.md        (디버깅 가이드)
+  - SECURITY_CHECKLIST.md        (보안 체크리스트)
+
+📗 Collector 관련:
+  - QUICK_INSTALL_COLLECTOR.md   (빠른 설치 - 5분)
+  - COLLECTOR_INSTALL_GUIDE.md   (상세 설치 가이드)
+  - COLLECTOR_SUMMARY.md         (Collector 요약)
+  - COLLECTOR_GUIDE.md           (Collector 상세)
+  - TOPAZ_RIP_FILE_FORMAT.md     (파일 형식 설명)
+
+📕 개발/리뷰:
+  - CODE_REVIEW_REPORT.md        (코드 리뷰 보고서)
+  - REVIEW_SUMMARY.md            (리뷰 요약)
+  - DAY1_COMPLETION_SUMMARY.md   (Day 1 완료 요약)
+
+🔧 문제 해결:
+  - TROUBLESHOOTING.md           (문제 해결 가이드)
+
+🎮 테스트 도구 (선택):
+  - collector_dashboard.html     (웹 대시보드)
+  - demo_collector.sh            (터미널 데모)
+  - server.js                    (Node.js 서버)
+
+💡 용도:
+-----------------------------------------
+- 시스템 이해 및 학습
+- 문제 발생 시 참고
+- 추가 개발 시 가이드
+- 새로운 담당자 인수인계
+
+⚠️ 참고:
+-----------------------------------------
+이 문서들은 GitHub에서도 확인 가능합니다.
+https://github.com/kyj119/dongsanMES

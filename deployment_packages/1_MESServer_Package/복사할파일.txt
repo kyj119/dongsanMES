@@ -1,0 +1,33 @@
+📁 1_MESServer_Package - MES 서버용
+========================================
+
+🎯 대상: 사무실/서버실의 MES 서버 PC
+
+📂 필요한 폴더/파일:
+-----------------------------------------
+
+1. MESSystem 폴더 전체 복사
+   GitHub 위치: dongsanMES/MESSystem/
+   → bin, obj 제외하고 전체 복사
+
+2. 문서 파일 (선택):
+   - DEPLOYMENT_GUIDE.md          (서버 배포 가이드)
+   - SERVER_TRANSFER_GUIDE.md     (서버 이전 가이드)
+   - SECURITY_CHECKLIST.md        (보안 체크리스트)
+   - SERVER_DEBUG_GUIDE.md        (디버깅 가이드)
+
+⚙️ 설치 후 수정할 파일:
+-----------------------------------------
+MESSystem/appsettings.json
+  → ConnectionStrings (DB 경로)
+  → Kestrel:Endpoints:Http:Url (포트 설정)
+
+🚀 실행 방법:
+-----------------------------------------
+방법 1: 개발/테스트
+  cd C:\MESSystem
+  dotnet run
+
+방법 2: 운영 (IIS)
+  → DEPLOYMENT_GUIDE.md 참고
+  → IIS에 게시

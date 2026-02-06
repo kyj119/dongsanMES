@@ -1,0 +1,61 @@
+📁 2_Collector_Package - 출력기 PC용
+========================================
+
+🎯 대상: TOPAZ RIP가 설치된 출력기 PC
+
+📂 필요한 폴더/파일:
+-----------------------------------------
+
+1. MESCollector 폴더 전체 복사 ⭐ 필수!
+   GitHub 위치: dongsanMES/MESCollector/
+   
+   포함 파일:
+   ├── Program.cs
+   ├── MESCollector.csproj
+   ├── appsettings.json          ← ⚠️ 반드시 수정 필요!
+   ├── Models/
+   │   ├── CollectorSettings.cs
+   │   └── EventDto.cs
+   └── Services/
+       ├── ApiService.cs
+       ├── FileMonitorService.cs
+       └── FileParserService.cs
+
+2. 설치 스크립트 ⭐ 필수!
+   - install_collector.bat        (자동 설치 스크립트)
+
+3. 가이드 문서 ⭐ 필독!
+   - QUICK_INSTALL_COLLECTOR.md   (빠른 설치 가이드 - 5분)
+   - COLLECTOR_INSTALL_GUIDE.md   (상세 설치 가이드)
+   - TOPAZ_RIP_FILE_FORMAT.md     (파일 형식 설명)
+   - TROUBLESHOOTING.md           (문제 해결)
+
+⚙️ 설치 후 반드시 수정할 파일:
+-----------------------------------------
+MESCollector/appsettings.json
+
+수정 항목:
+1. ServerUrl: "http://192.168.0.XXX:5000"  ← MES 서버 IP 입력!
+2. CollectorId: "COLLECTOR-출력기이름"     ← 구분 가능한 이름!
+3. WatchDirectories:
+   - Preview: "C:\\TOPAZ_RIP\\preview"     ← TOPAZ RIP 경로 확인!
+   - PrintLog: "C:\\TOPAZ_RIP\\printlog"
+   - Job: "C:\\TOPAZ_RIP\\job"
+
+🚀 설치 순서 (5분):
+-----------------------------------------
+1. install_collector.bat 우클릭 → 관리자 권한으로 실행
+2. appsettings.json 메모장으로 열어서 수정
+3. CMD 열기 → cd C:\MESCollector
+4. dotnet run 으로 테스트
+5. 연결 확인 후 Windows Service 등록 (선택)
+
+⚠️ 주의사항:
+-----------------------------------------
+- .NET 8.0 Runtime 필수 설치!
+- TOPAZ_RIP 폴더 경로 반드시 확인!
+- MES 서버가 먼저 실행되어 있어야 함!
+
+📖 자세한 설치 방법:
+-----------------------------------------
+→ QUICK_INSTALL_COLLECTOR.md 반드시 읽어보세요!
