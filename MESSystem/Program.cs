@@ -26,6 +26,7 @@ builder.Services.AddHttpContextAccessor();
 // Add custom services
 builder.Services.AddScoped<FileUploadService>();
 builder.Services.AddScoped<OrderNumberService>();
+builder.Services.AddScoped<ThumbnailService>();
 
 var app = builder.Build();
 

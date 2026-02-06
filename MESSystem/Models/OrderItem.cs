@@ -31,6 +31,9 @@ public class OrderItem
     [StringLength(500)]
     public string? FilePath { get; set; } // 전체 파일 경로
     
+    [StringLength(500)]
+    public string? ThumbnailPath { get; set; } // 썸네일 이미지 경로
+    
     [StringLength(200)]
     public string? Remark { get; set; }
     

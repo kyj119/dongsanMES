@@ -279,13 +279,14 @@ namespace MESSystem.Pages.Admin.Orders
                     {
                         try
                         {
-                            var filePath = await _fileUploadService.UploadFileAsync(
+                            var (filePath, thumbnailPath) = await _fileUploadService.UploadFileAsync(
                                 fileInput, 
                                 order.OrderNumber, 
                                 cardNumber);
 
                             orderItem.DesignFileName = Path.GetFileName(filePath);
                             orderItem.FilePath = filePath;
+                            orderItem.ThumbnailPath = thumbnailPath;
                         }
                         catch (Exception ex)
                         {

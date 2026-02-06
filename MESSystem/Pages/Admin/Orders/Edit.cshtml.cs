@@ -238,13 +238,14 @@ namespace MESSystem.Pages.Admin.Orders
                                 
                                 if (!string.IsNullOrEmpty(cardNumber))
                                 {
-                                    var filePath = await _fileUploadService.UploadFileAsync(
+                                    var (filePath, thumbnailPath) = await _fileUploadService.UploadFileAsync(
                                         inputItem.DesignFile,
                                         order.OrderNumber,
                                         cardNumber);
                                     
                                     orderItem.DesignFileName = Path.GetFileName(filePath);
                                     orderItem.FilePath = filePath;
+                                    orderItem.ThumbnailPath = thumbnailPath;
                                 }
                             }
                             

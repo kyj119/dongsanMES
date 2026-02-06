@@ -5,16 +5,29 @@ namespace MESSystem.Services;
 
 public class FileUploadService
 {
-    private readonly string _sharedFolderPath = @"\\192.168.0.122\Designs\";
+    private readonly string _sharedFolderPath;
+    private readonly ThumbnailService _thumbnailService;
+    private readonly ILogger<FileUploadService> _logger;
+    
+    public FileUploadService(
+        IConfiguration configuration, 
+        ThumbnailService thumbnailService,
+        ILogger<FileUploadService> logger)
+    {
+        // appsettings.json에서 경로 읽기 또는 기본값 사용
+        _sharedFolderPath = configuration["SharedFolderPath"] ?? @"Z:\Designs\";
+        _thumbnailService = thumbnailService;
+        _logger = logger;
+    }
     
     /// <summary>
-    /// 파일 업로드 및 자동 리네임
+    /// 파일 업로드 및 자동 리네임 + 썸네일 생성
     /// </summary>
     /// <param name="file">업로드된 파일</param>
     /// <param name="orderNumber">주문번호 (예: 20260204-01)</param>
     /// <param name="cardNumber">카드번호 (예: 20260204-01-1)</param>
-    /// <returns>저장된 파일의 전체 경로</returns>
-    public async Task<string> UploadFileAsync(IFormFile file, string orderNumber, string cardNumber)
+    /// <returns>(파일경로, 썸네일경로) 튜플</returns>
+    public async Task<(string FilePath, string? ThumbnailPath)> UploadFileAsync(IFormFile file, string orderNumber, string cardNumber)
     {
         if (file == null || file.Length == 0)
         {
@@ -26,10 +39,10 @@ public class FileUploadService
         var extension = Path.GetExtension(file.FileName);
 
         // 새 파일명 생성: {카드번호}_{원본파일명}.{확장자}
-        // 예: 20260204-01-1_태극기.ai
+        // 예: 20260204-01-1_태극기.eps
         var newFileName = $"{cardNumber}_{SanitizeFileName(originalFileName)}{extension}";
 
-        // 폴더 경로 생성: \\192.168.0.122\Designs\2026\02\20260204-01\
+        // 폴더 경로 생성: Z:\Designs\2026\02\20260204-01\
         var yearMonth = GetYearMonthFromOrderNumber(orderNumber);
         var folderPath = Path.Combine(_sharedFolderPath, yearMonth.Year, yearMonth.Month, orderNumber);
 
@@ -47,8 +60,27 @@ public class FileUploadService
         {
             await file.CopyToAsync(stream);
         }
+        
+        _logger.LogInformation("파일 업로드 완료: {FilePath}", fullPath);
 
-        return fullPath;
+        // EPS 파일이면 썸네일 생성
+        string? thumbnailPath = null;
+        if (extension.ToLower() == ".eps")
+        {
+            _logger.LogInformation("EPS 파일 감지, 썸네일 생성 시작: {FilePath}", fullPath);
+            thumbnailPath = await _thumbnailService.GenerateThumbnailAsync(fullPath);
+            
+            if (thumbnailPath != null)
+            {
+                _logger.LogInformation("썸네일 생성 완료: {ThumbnailPath}", thumbnailPath);
+            }
+            else
+            {
+                _logger.LogWarning("썸네일 생성 실패: {FilePath}", fullPath);
+            }
+        }
+
+        return (fullPath, thumbnailPath);
     }
 
     /// <summary>
