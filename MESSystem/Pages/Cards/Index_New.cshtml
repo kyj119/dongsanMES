@@ -243,13 +243,13 @@
                             <!-- 품목 정보 -->
                             <div class="mb-3">
                                 <h6 class="text-muted mb-2">
-                                    <i class="fas fa-box me-1"></i> 품목 (@card.CardItems.Count 개)
+                                    <i class="fas fa-box me-1"></i> 품목 (@card.CardItems.Count개)
                                 </h6>
                                 @foreach (var item in card.CardItems.Take(2))
                                 {
                                     <div class="d-flex justify-content-between mb-1">
                                         <span>@item.ProductName</span>
-                                        <span class="text-primary"><strong>@item.Quantity 개</strong></span>
+                                        <span class="text-primary"><strong>@(item.Quantity)개</strong></span>
                                     </div>
                                 }
                                 @if (card.CardItems.Count > 2)
