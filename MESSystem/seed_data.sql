@@ -11,28 +11,28 @@ INSERT INTO Clients (Id, Name, Address, Phone, Mobile, Email, BusinessNumber, Ce
 (6, '글로벌무역', '인천시 연수구 송도과학로 890', '032-6789-0123', '010-6789-0123', 'global@example.com', '678-90-12345', '한글로벌', '무역업', '수출입', '수출용 제품', 1, datetime('now'));
 
 -- 2. 태극기 품목 5개 추가 (CategoryId = 1)
-INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, CreatedAt) VALUES
-(1, 1, 'TG-001', '태극기 90x135', '90cm x 135cm', 1, datetime('now')),
-(2, 1, 'TG-002', '태극기 150x225', '150cm x 225cm', 1, datetime('now')),
-(3, 1, 'TG-003', '태극기 소형 30x45', '30cm x 45cm', 1, datetime('now')),
-(4, 1, 'TG-004', '태극기 대형 270x405', '270cm x 405cm', 1, datetime('now')),
-(5, 1, 'TG-005', '태극기 차량용 20x30', '20cm x 30cm', 1, datetime('now'));
+INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, IsDeleted, CreatedAt) VALUES
+(1, 1, 'TG-001', '태극기 90x135', '90cm x 135cm', 1, 0, datetime('now')),
+(2, 1, 'TG-002', '태극기 150x225', '150cm x 225cm', 1, 0, datetime('now')),
+(3, 1, 'TG-003', '태극기 소형 30x45', '30cm x 45cm', 1, 0, datetime('now')),
+(4, 1, 'TG-004', '태극기 대형 270x405', '270cm x 405cm', 1, 0, datetime('now')),
+(5, 1, 'TG-005', '태극기 차량용 20x30', '20cm x 30cm', 1, 0, datetime('now'));
 
 -- 3. 현수막 품목 5개 추가 (CategoryId = 2)
-INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, CreatedAt) VALUES
-(6, 2, 'HS-001', '현수막 표준형', '90cm x 180cm', 1, datetime('now')),
-(7, 2, 'HS-002', '현수막 대형', '150cm x 300cm', 1, datetime('now')),
-(8, 2, 'HS-003', '현수막 소형', '60cm x 120cm', 1, datetime('now')),
-(9, 2, 'HS-004', '현수막 초대형', '200cm x 500cm', 1, datetime('now')),
-(10, 2, 'HS-005', '현수막 배너형', '80cm x 200cm', 1, datetime('now'));
+INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, IsDeleted, CreatedAt) VALUES
+(6, 2, 'HS-001', '현수막 표준형', '90cm x 180cm', 1, 0, datetime('now')),
+(7, 2, 'HS-002', '현수막 대형', '150cm x 300cm', 1, 0, datetime('now')),
+(8, 2, 'HS-003', '현수막 소형', '60cm x 120cm', 1, 0, datetime('now')),
+(9, 2, 'HS-004', '현수막 초대형', '200cm x 500cm', 1, 0, datetime('now')),
+(10, 2, 'HS-005', '현수막 배너형', '80cm x 200cm', 1, 0, datetime('now'));
 
 -- 4. 간판 품목 5개 추가 (CategoryId = 3)
-INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, CreatedAt) VALUES
-(11, 3, 'KB-001', '간판 아크릴 소형', '50cm x 100cm', 1, datetime('now')),
-(12, 3, 'KB-002', '간판 아크릴 중형', '100cm x 200cm', 1, datetime('now')),
-(13, 3, 'KB-003', '간판 LED 소형', '60cm x 120cm', 1, datetime('now')),
-(14, 3, 'KB-004', '간판 LED 대형', '150cm x 300cm', 1, datetime('now')),
-(15, 3, 'KB-005', '간판 네온사인', '80cm x 150cm', 1, datetime('now'));
+INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, IsDeleted, CreatedAt) VALUES
+(11, 3, 'KB-001', '간판 아크릴 소형', '50cm x 100cm', 1, 0, datetime('now')),
+(12, 3, 'KB-002', '간판 아크릴 중형', '100cm x 200cm', 1, 0, datetime('now')),
+(13, 3, 'KB-003', '간판 LED 소형', '60cm x 120cm', 1, 0, datetime('now')),
+(14, 3, 'KB-004', '간판 LED 대형', '150cm x 300cm', 1, 0, datetime('now')),
+(15, 3, 'KB-005', '간판 네온사인', '80cm x 150cm', 1, 0, datetime('now'));
 
 -- 5. 주문서 5개 추가
 INSERT INTO Orders (Id, OrderNumber, ClientId, ClientName, ClientAddress, ClientPhone, ClientMobile, ShippingMethod, PaymentMethod, ShippingDate, ShippingTime, FilePath, Status, Version, CreatedAt, UpdatedAt, CreatedBy, IsDeleted, ParentOrderId, OrderType, IsSalesClosed, SalesClosingItemId) VALUES
