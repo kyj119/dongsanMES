@@ -1,0 +1,206 @@
+@page
+@model MESSystem.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "사용자 관리";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h2><i class="fas fa-users"></i> 사용자 관리</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <a asp-page="./Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> 신규 사용자
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 검색 필터 -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">사용자명</label>
+                    <input type="text" name="searchUsername" class="form-control" value="@Model.SearchUsername" placeholder="사용자명 검색">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">이름</label>
+                    <input type="text" name="searchFullName" class="form-control" value="@Model.SearchFullName" placeholder="이름 검색">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">권한</label>
+                    <select name="searchRole" class="form-select">
+                        <option value="">전체</option>
+                        <option value="관리자" selected="@(Model.SearchRole == "관리자")">관리자</option>
+                        <option value="사용자" selected="@(Model.SearchRole == "사용자")">사용자</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">상태</label>
+                    <select name="searchStatus" class="form-select">
+                        <option value="">전체</option>
+                        <option value="active" selected="@(Model.SearchStatus == "active")">활성</option>
+                        <option value="inactive" selected="@(Model.SearchStatus == "inactive")">비활성</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> 검색
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 사용자 목록 -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>사용자명</th>
+                            <th>이름</th>
+                            <th>권한</th>
+                            <th>상태</th>
+                            <th>생성일</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Users.Any())
+                        {
+                            @foreach (var user in Model.Users)
+                            {
+                                <tr>
+                                    <td>@user.Id</td>
+                                    <td>
+                                        <strong>@user.Username</strong>
+                                        @if (user.Username == "admin")
+                                        {
+                                            <span class="badge bg-danger ms-1">시스템 관리자</span>
+                                        }
+                                    </td>
+                                    <td>@user.FullName</td>
+                                    <td>
+                                        @if (user.Role == "관리자")
+                                        {
+                                            <span class="badge bg-primary">@user.Role</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@user.Role</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="badge bg-success">활성</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">비활성</span>
+                                        }
+                                    </td>
+                                    <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <a asp-page="./Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i> 수정
+                                        </a>
+                                        @if (user.Username != "admin")
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="confirmDelete(@user.Id, '@user.Username')">
+                                                <i class="fas fa-trash"></i> 삭제
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                                    <p class="text-muted">검색 결과가 없습니다.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 통계 정보 -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">총 사용자</h6>
+                    <h3>@Model.TotalUsers명</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">활성 사용자</h6>
+                    <h3>@Model.ActiveUsers명</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">관리자</h6>
+                    <h3>@Model.AdminUsers명</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">일반 사용자</h6>
+                    <h3>@Model.RegularUsers명</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<form method="post" id="deleteForm">
+    <input type="hidden" name="id" id="deleteUserId" />
+</form>
+
+@section Scripts {
+<script>
+    function confirmDelete(userId, username) {
+        if (confirm(`사용자 "${username}"을(를) 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+            document.getElementById('deleteUserId').value = userId;
+            document.getElementById('deleteForm').submit();
+        }
+    }
+</script>
+}

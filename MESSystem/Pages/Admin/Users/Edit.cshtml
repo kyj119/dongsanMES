@@ -1,0 +1,160 @@
+@page
+@model MESSystem.Pages.Admin.Users.EditModel
+@{
+    ViewData["Title"] = "사용자 수정";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h2><i class="fas fa-user-edit"></i> 사용자 수정</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Index">사용자 관리</a></li>
+                    <li class="breadcrumb-item active">수정</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">사용자 정보</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <input type="hidden" asp-for="Input.Id" />
+                        
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Username" class="form-label">사용자명</label>
+                            <input asp-for="Input.Username" class="form-control" readonly />
+                            <small class="form-text text-muted">사용자명은 변경할 수 없습니다.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.NewPassword" class="form-label">새 비밀번호</label>
+                            <input asp-for="Input.NewPassword" type="password" class="form-control" placeholder="변경하지 않으려면 비워두세요" />
+                            <span asp-validation-for="Input.NewPassword" class="text-danger"></span>
+                            <small class="form-text text-muted">비밀번호를 변경하지 않으려면 비워두세요.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.ConfirmPassword" class="form-label">새 비밀번호 확인</label>
+                            <input asp-for="Input.ConfirmPassword" type="password" class="form-control" placeholder="비밀번호 재입력" />
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.FullName" class="form-label">
+                                이름 <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Input.FullName" class="form-control" />
+                            <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Role" class="form-label">
+                                권한 <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="Input.Role" class="form-select" @(Model.Input.Username == "admin" ? "disabled" : "")>
+                                <option value="관리자">관리자</option>
+                                <option value="사용자">사용자</option>
+                            </select>
+                            <span asp-validation-for="Input.Role" class="text-danger"></span>
+                            @if (Model.Input.Username == "admin")
+                            {
+                                <small class="form-text text-muted">시스템 관리자의 권한은 변경할 수 없습니다.</small>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" @(Model.Input.Username == "admin" ? "disabled" : "") />
+                                <label asp-for="Input.IsActive" class="form-check-label">
+                                    활성 상태
+                                </label>
+                            </div>
+                            @if (Model.Input.Username == "admin")
+                            {
+                                <small class="form-text text-muted">시스템 관리자는 항상 활성 상태입니다.</small>
+                            }
+                            else
+                            {
+                                <small class="form-text text-muted">비활성화하면 로그인할 수 없습니다.</small>
+                            }
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                생성일: @Model.Input.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                            </small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="./Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> 목록으로
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle"></i> 주의사항</h6>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li>사용자명은 변경할 수 없습니다</li>
+                        <li>비밀번호를 변경하지 않으려면 비워두세요</li>
+                        <li>admin 계정의 권한과 상태는 변경할 수 없습니다</li>
+                        <li>사용자를 비활성화하면 로그인할 수 없습니다</li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (Model.Input.Username != "admin")
+            {
+                <div class="card mt-3">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-trash"></i> 위험 구역</h6>
+                    </div>
+                    <div class="card-body">
+                        <p>이 사용자를 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.</p>
+                        <button type="button" class="btn btn-danger w-100" onclick="confirmDelete()">
+                            <i class="fas fa-trash"></i> 사용자 삭제
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- 삭제 확인 폼 -->
+<form method="post" asp-page-handler="Delete" id="deleteForm">
+    <input type="hidden" name="id" value="@Model.Input.Id" />
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function confirmDelete() {
+            if (confirm(`사용자 "@Model.Input.Username"을(를) 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+}
