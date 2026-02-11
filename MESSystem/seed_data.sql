@@ -11,28 +11,28 @@ INSERT INTO Clients (Id, Name, Address, Phone, Mobile, Email, BusinessNumber, Ce
 (6, '글로벌무역', '인천시 연수구 송도과학로 890', '032-6789-0123', '010-6789-0123', 'global@example.com', '678-90-12345', '한글로벌', '무역업', '수출입', '수출용 제품', 1, datetime('now'));
 
 -- 2. 태극기 품목 5개 추가 (CategoryId = 1)
-INSERT INTO Products (Id, CategoryId, Code, Name, Size, Unit, UnitPrice, IsActive, CreatedAt) VALUES
-(1, 1, 'TG-001', '태극기 90x135', '90cm x 135cm', '매', 10000, 1, datetime('now')),
-(2, 1, 'TG-002', '태극기 150x225', '150cm x 225cm', '매', 18000, 1, datetime('now')),
-(3, 1, 'TG-003', '태극기 소형 30x45', '30cm x 45cm', '매', 3000, 1, datetime('now')),
-(4, 1, 'TG-004', '태극기 대형 270x405', '270cm x 405cm', '매', 45000, 1, datetime('now')),
-(5, 1, 'TG-005', '태극기 차량용 20x30', '20cm x 30cm', '매', 2000, 1, datetime('now'));
+INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, CreatedAt) VALUES
+(1, 1, 'TG-001', '태극기 90x135', '90cm x 135cm', 1, datetime('now')),
+(2, 1, 'TG-002', '태극기 150x225', '150cm x 225cm', 1, datetime('now')),
+(3, 1, 'TG-003', '태극기 소형 30x45', '30cm x 45cm', 1, datetime('now')),
+(4, 1, 'TG-004', '태극기 대형 270x405', '270cm x 405cm', 1, datetime('now')),
+(5, 1, 'TG-005', '태극기 차량용 20x30', '20cm x 30cm', 1, datetime('now'));
 
 -- 3. 현수막 품목 5개 추가 (CategoryId = 2)
-INSERT INTO Products (Id, CategoryId, Code, Name, Size, Unit, UnitPrice, IsActive, CreatedAt) VALUES
-(6, 2, 'HS-001', '현수막 표준형', '90cm x 180cm', '개', 25000, 1, datetime('now')),
-(7, 2, 'HS-002', '현수막 대형', '150cm x 300cm', '개', 45000, 1, datetime('now')),
-(8, 2, 'HS-003', '현수막 소형', '60cm x 120cm', '개', 15000, 1, datetime('now')),
-(9, 2, 'HS-004', '현수막 초대형', '200cm x 500cm', '개', 85000, 1, datetime('now')),
-(10, 2, 'HS-005', '현수막 배너형', '80cm x 200cm', '개', 28000, 1, datetime('now'));
+INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, CreatedAt) VALUES
+(6, 2, 'HS-001', '현수막 표준형', '90cm x 180cm', 1, datetime('now')),
+(7, 2, 'HS-002', '현수막 대형', '150cm x 300cm', 1, datetime('now')),
+(8, 2, 'HS-003', '현수막 소형', '60cm x 120cm', 1, datetime('now')),
+(9, 2, 'HS-004', '현수막 초대형', '200cm x 500cm', 1, datetime('now')),
+(10, 2, 'HS-005', '현수막 배너형', '80cm x 200cm', 1, datetime('now'));
 
 -- 4. 간판 품목 5개 추가 (CategoryId = 3)
-INSERT INTO Products (Id, CategoryId, Code, Name, Size, Unit, UnitPrice, IsActive, CreatedAt) VALUES
-(11, 3, 'KB-001', '간판 아크릴 소형', '50cm x 100cm', '개', 150000, 1, datetime('now')),
-(12, 3, 'KB-002', '간판 아크릴 중형', '100cm x 200cm', '개', 350000, 1, datetime('now')),
-(13, 3, 'KB-003', '간판 LED 소형', '60cm x 120cm', '개', 280000, 1, datetime('now')),
-(14, 3, 'KB-004', '간판 LED 대형', '150cm x 300cm', '개', 650000, 1, datetime('now')),
-(15, 3, 'KB-005', '간판 네온사인', '80cm x 150cm', '개', 450000, 1, datetime('now'));
+INSERT INTO Products (Id, CategoryId, Code, Name, DefaultSpec, IsActive, CreatedAt) VALUES
+(11, 3, 'KB-001', '간판 아크릴 소형', '50cm x 100cm', 1, datetime('now')),
+(12, 3, 'KB-002', '간판 아크릴 중형', '100cm x 200cm', 1, datetime('now')),
+(13, 3, 'KB-003', '간판 LED 소형', '60cm x 120cm', 1, datetime('now')),
+(14, 3, 'KB-004', '간판 LED 대형', '150cm x 300cm', 1, datetime('now')),
+(15, 3, 'KB-005', '간판 네온사인', '80cm x 150cm', 1, datetime('now'));
 
 -- 5. 주문서 5개 추가
 INSERT INTO Orders (Id, OrderNumber, ClientId, ClientName, ClientAddress, ClientPhone, ClientMobile, ShippingMethod, PaymentMethod, ShippingDate, ShippingTime, FilePath, Status, Version, CreatedAt, UpdatedAt, CreatedBy, IsDeleted, ParentOrderId, OrderType, IsSalesClosed, SalesClosingItemId) VALUES
@@ -44,28 +44,28 @@ INSERT INTO Orders (Id, OrderNumber, ClientId, ClientName, ClientAddress, Client
 
 -- 6. 주문서 품목 추가
 -- 주문서 1: 태극기 90x135 100매 + 태극기 소형 50매
-INSERT INTO OrderItems (OrderId, ProductId, ProductCode, ProductName, ProductSize, Quantity, UnitPrice, TotalPrice, Memo) VALUES
-(1, 1, 'TG-001', '태극기 90x135', '90cm x 135cm', 100, 10000, 1000000, '긴급 주문'),
-(1, 3, 'TG-003', '태극기 소형 30x45', '30cm x 45cm', 50, 3000, 150000, NULL);
+INSERT INTO OrderItems (OrderId, ProductId, Spec, Description, Quantity, UnitPrice, LineNumber, IsDeleted) VALUES
+(1, 1, '90cm x 135cm', '긴급 주문', 100, 10000, 1, 0),
+(1, 3, '30cm x 45cm', NULL, 50, 3000, 2, 0);
 
 -- 주문서 2: 현수막 표준형 10개 + 현수막 대형 3개
-INSERT INTO OrderItems (OrderId, ProductId, ProductCode, ProductName, ProductSize, Quantity, UnitPrice, TotalPrice, Memo) VALUES
-(2, 6, 'HS-001', '현수막 표준형', '90cm x 180cm', 10, 25000, 250000, '이벤트용'),
-(2, 7, 'HS-002', '현수막 대형', '150cm x 300cm', 3, 45000, 135000, NULL);
+INSERT INTO OrderItems (OrderId, ProductId, Spec, Description, Quantity, UnitPrice, LineNumber, IsDeleted) VALUES
+(2, 6, '90cm x 180cm', '이벤트용', 10, 25000, 1, 0),
+(2, 7, '150cm x 300cm', NULL, 3, 45000, 2, 0);
 
 -- 주문서 3: 현수막 초대형 5개
-INSERT INTO OrderItems (OrderId, ProductId, ProductCode, ProductName, ProductSize, Quantity, UnitPrice, TotalPrice, Memo) VALUES
-(3, 9, 'HS-004', '현수막 초대형', '200cm x 500cm', 5, 85000, 425000, '건설 현장용');
+INSERT INTO OrderItems (OrderId, ProductId, Spec, Description, Quantity, UnitPrice, LineNumber, IsDeleted) VALUES
+(3, 9, '200cm x 500cm', '건설 현장용', 5, 85000, 1, 0);
 
 -- 주문서 4: 간판 아크릴 중형 2개 + 간판 LED 소형 1개
-INSERT INTO OrderItems (OrderId, ProductId, ProductCode, ProductName, ProductSize, Quantity, UnitPrice, TotalPrice, Memo) VALUES
-(4, 12, 'KB-002', '간판 아크릴 중형', '100cm x 200cm', 2, 350000, 700000, '매장 간판'),
-(4, 13, 'KB-003', '간판 LED 소형', '60cm x 120cm', 1, 280000, 280000, NULL);
+INSERT INTO OrderItems (OrderId, ProductId, Spec, Description, Quantity, UnitPrice, LineNumber, IsDeleted) VALUES
+(4, 12, '100cm x 200cm', '매장 간판', 2, 350000, 1, 0),
+(4, 13, '60cm x 120cm', NULL, 1, 280000, 2, 0);
 
 -- 주문서 5: 태극기 150x225 30매 + 차량용 100매
-INSERT INTO OrderItems (OrderId, ProductId, ProductCode, ProductName, ProductSize, Quantity, UnitPrice, TotalPrice, Memo) VALUES
-(5, 2, 'TG-002', '태극기 150x225', '150cm x 225cm', 30, 18000, 540000, '3.1절 기념'),
-(5, 5, 'TG-005', '태극기 차량용 20x30', '20cm x 30cm', 100, 2000, 200000, NULL);
+INSERT INTO OrderItems (OrderId, ProductId, Spec, Description, Quantity, UnitPrice, LineNumber, IsDeleted) VALUES
+(5, 2, '150cm x 225cm', '3.1절 기념', 30, 18000, 1, 0),
+(5, 5, '20cm x 30cm', NULL, 100, 2000, 2, 0);
 
 -- 7. 추가 사용자 3명 (기존 admin, field01 포함 총 5명)
 INSERT INTO Users (Id, Username, Password, FullName, Role, IsActive, CreatedAt) VALUES
