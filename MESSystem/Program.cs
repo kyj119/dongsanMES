@@ -2,6 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using MESSystem.Data;
 using MESSystem.Services;
 
+// 마이그레이션 모드 체크
+if (args.Length > 0 && args[0] == "migrate")
+{
+    DatabaseMigrator.RunMigration(args);
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
