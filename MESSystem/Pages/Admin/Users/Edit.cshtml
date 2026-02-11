@@ -61,32 +61,45 @@
                             <label asp-for="Input.Role" class="form-label">
                                 권한 <span class="text-danger">*</span>
                             </label>
-                            <select asp-for="Input.Role" class="form-select" @(Model.Input.Username == "admin" ? "disabled" : "")>
-                                <option value="관리자">관리자</option>
-                                <option value="사용자">사용자</option>
-                            </select>
-                            <span asp-validation-for="Input.Role" class="text-danger"></span>
                             @if (Model.Input.Username == "admin")
                             {
+                                <select asp-for="Input.Role" class="form-select" disabled>
+                                    <option value="관리자">관리자</option>
+                                    <option value="사용자">사용자</option>
+                                </select>
                                 <small class="form-text text-muted">시스템 관리자의 권한은 변경할 수 없습니다.</small>
                             }
+                            else
+                            {
+                                <select asp-for="Input.Role" class="form-select">
+                                    <option value="관리자">관리자</option>
+                                    <option value="사용자">사용자</option>
+                                </select>
+                            }
+                            <span asp-validation-for="Input.Role" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <div class="form-check">
-                                <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" @(Model.Input.Username == "admin" ? "disabled" : "") />
-                                <label asp-for="Input.IsActive" class="form-check-label">
-                                    활성 상태
-                                </label>
+                                @if (Model.Input.Username == "admin")
+                                {
+                                    <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" disabled />
+                                    <label asp-for="Input.IsActive" class="form-check-label">
+                                        활성 상태
+                                    </label>
+                                    <br />
+                                    <small class="form-text text-muted">시스템 관리자는 항상 활성 상태입니다.</small>
+                                }
+                                else
+                                {
+                                    <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" />
+                                    <label asp-for="Input.IsActive" class="form-check-label">
+                                        활성 상태
+                                    </label>
+                                    <br />
+                                    <small class="form-text text-muted">비활성화하면 로그인할 수 없습니다.</small>
+                                }
                             </div>
-                            @if (Model.Input.Username == "admin")
-                            {
-                                <small class="form-text text-muted">시스템 관리자는 항상 활성 상태입니다.</small>
-                            }
-                            else
-                            {
-                                <small class="form-text text-muted">비활성화하면 로그인할 수 없습니다.</small>
-                            }
                         </div>
 
                         <hr />
