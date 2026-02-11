@@ -41,7 +41,11 @@ public class Order
     public string? FilePath { get; set; } // 공유폴더 경로
     
     [StringLength(20)]
-    public string Status { get; set; } = "작성"; // 작성/진행중/완료/취소
+    public string Status { get; set; } = "작성"; // 작성/진행중/완료/매출확정/취소
+    
+    // 매출 관련
+    public bool IsSalesClosed { get; set; } = false; // 매출 마감 여부
+    public int? SalesClosingItemId { get; set; } // 매출 마감 항목 ID
     
     public int Version { get; set; } = 1; // 낙관적 락
     

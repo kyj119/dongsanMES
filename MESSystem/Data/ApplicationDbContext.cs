@@ -20,6 +20,14 @@ public class ApplicationDbContext : DbContext
     public DbSet<CardItem> CardItems { get; set; }
     public DbSet<EventLog> EventLogs { get; set; }
     
+    // ERP 매출 관리
+    public DbSet<SalesClosing> SalesClosings { get; set; }
+    public DbSet<SalesClosingItem> SalesClosingItems { get; set; }
+    public DbSet<TaxInvoice> TaxInvoices { get; set; }
+    public DbSet<TaxInvoiceItem> TaxInvoiceItems { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<BankTransaction> BankTransactions { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -129,6 +137,119 @@ public class ApplicationDbContext : DbContext
                   .WithMany(c => c.EventLogs)
                   .HasForeignKey(e => e.CardId)
                   .OnDelete(DeleteBehavior.SetNull);
+        });
+        
+        // SalesClosing
+        modelBuilder.Entity<SalesClosing>(entity =>
+        {
+            entity.HasIndex(e => e.ClosingNumber).IsUnique();
+            entity.HasIndex(e => e.ClientId);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.StartDate);
+            
+            entity.Property(e => e.SupplyAmount).HasPrecision(18, 2);
+            entity.Property(e => e.DiscountAmount).HasPrecision(18, 2);
+            entity.Property(e => e.AdditionalAmount).HasPrecision(18, 2);
+            entity.Property(e => e.AdjustedSupplyAmount).HasPrecision(18, 2);
+            entity.Property(e => e.VatAmount).HasPrecision(18, 2);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
+            
+            entity.HasOne(e => e.Client)
+                  .WithMany(c => c.SalesClosings)
+                  .HasForeignKey(e => e.ClientId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+        
+        // SalesClosingItem
+        modelBuilder.Entity<SalesClosingItem>(entity =>
+        {
+            entity.HasIndex(e => e.SalesClosingId);
+            entity.HasIndex(e => e.OrderId);
+            
+            entity.Property(e => e.SupplyAmount).HasPrecision(18, 2);
+            entity.Property(e => e.DiscountAmount).HasPrecision(18, 2);
+            
+            entity.HasOne(e => e.SalesClosing)
+                  .WithMany(s => s.Items)
+                  .HasForeignKey(e => e.SalesClosingId)
+                  .OnDelete(DeleteBehavior.Cascade);
+                  
+            entity.HasOne(e => e.Order)
+                  .WithMany()
+                  .HasForeignKey(e => e.OrderId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+        
+        // TaxInvoice
+        modelBuilder.Entity<TaxInvoice>(entity =>
+        {
+            entity.HasIndex(e => e.SalesClosingId).IsUnique();
+            entity.HasIndex(e => e.ApprovalNumber);
+            entity.HasIndex(e => e.IssueDate);
+            entity.HasIndex(e => e.Status);
+            
+            entity.Property(e => e.SupplyAmount).HasPrecision(18, 2);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 2);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
+            
+            entity.HasOne(e => e.SalesClosing)
+                  .WithOne(s => s.TaxInvoice)
+                  .HasForeignKey<TaxInvoice>(e => e.SalesClosingId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        // TaxInvoiceItem
+        modelBuilder.Entity<TaxInvoiceItem>(entity =>
+        {
+            entity.HasIndex(e => e.TaxInvoiceId);
+            
+            entity.Property(e => e.Quantity).HasPrecision(18, 2);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 2);
+            entity.Property(e => e.SupplyAmount).HasPrecision(18, 2);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 2);
+            
+            entity.HasOne(e => e.TaxInvoice)
+                  .WithMany(t => t.Items)
+                  .HasForeignKey(e => e.TaxInvoiceId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        // Payment
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasIndex(e => e.PaymentNumber).IsUnique();
+            entity.HasIndex(e => e.SalesClosingId);
+            entity.HasIndex(e => e.ClientId);
+            entity.HasIndex(e => e.PaymentDate);
+            entity.HasIndex(e => e.IsMatched);
+            
+            entity.Property(e => e.Amount).HasPrecision(18, 2);
+            
+            entity.HasOne(e => e.SalesClosing)
+                  .WithMany(s => s.Payments)
+                  .HasForeignKey(e => e.SalesClosingId)
+                  .OnDelete(DeleteBehavior.SetNull);
+                  
+            entity.HasOne(e => e.Client)
+                  .WithMany(c => c.Payments)
+                  .HasForeignKey(e => e.ClientId)
+                  .OnDelete(DeleteBehavior.Restrict);
+                  
+            entity.HasOne(e => e.BankTransaction)
+                  .WithMany(b => b.Payments)
+                  .HasForeignKey(e => e.BankTransactionId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+        
+        // BankTransaction
+        modelBuilder.Entity<BankTransaction>(entity =>
+        {
+            entity.HasIndex(e => e.ExternalTransactionId).IsUnique();
+            entity.HasIndex(e => e.TransactionDateTime);
+            entity.HasIndex(e => e.IsProcessed);
+            
+            entity.Property(e => e.Amount).HasPrecision(18, 2);
+            entity.Property(e => e.Balance).HasPrecision(18, 2);
         });
         
         // 초기 데이터
