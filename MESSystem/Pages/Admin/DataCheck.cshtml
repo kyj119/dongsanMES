@@ -1,0 +1,236 @@
+@page
+@model MESSystem.Pages.Admin.DataCheckModel
+@{
+    ViewData["Title"] = "데이터 확인";
+}
+
+<div class="container-fluid py-4">
+    <h2><i class="fas fa-database"></i> 데이터베이스 상태 확인</h2>
+    
+    <div class="row mt-4">
+        <!-- 거래처 사업자 정보 -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> 거래처 사업자 정보</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>거래처명</th>
+                                    <th>사업자등록번호</th>
+                                    <th>대표자명</th>
+                                    <th>업태</th>
+                                    <th>종목</th>
+                                    <th>상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var client in Model.Clients)
+                                {
+                                    <tr class="@(string.IsNullOrEmpty(client.BusinessNumber) ? "table-warning" : "")">
+                                        <td>@client.Id</td>
+                                        <td><strong>@client.Name</strong></td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(client.BusinessNumber))
+                                            {
+                                                <span class="badge bg-warning">미등록</span>
+                                            }
+                                            else
+                                            {
+                                                @client.BusinessNumber
+                                            }
+                                        </td>
+                                        <td>@(client.CeoName ?? "-")</td>
+                                        <td>@(client.BusinessType ?? "-")</td>
+                                        <td>@(client.BusinessItem ?? "-")</td>
+                                        <td>
+                                            @if (client.IsActive)
+                                            {
+                                                <span class="badge bg-success">활성</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">비활성</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>총 @(Model.Clients.Count)개 거래처</strong> |
+                        사업자정보 있음: @(Model.Clients.Count(c => !string.IsNullOrEmpty(c.BusinessNumber)))개 |
+                        사업자정보 없음: @(Model.Clients.Count(c => string.IsNullOrEmpty(c.BusinessNumber)))개
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ERP 테이블 상태 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-table"></i> ERP 테이블 상태</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>테이블명</th>
+                                <th>데이터 수</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SalesClosings</td>
+                                <td><strong>@Model.SalesClosingsCount</strong>건</td>
+                                <td>
+                                    @if (Model.SalesClosingsTableExists)
+                                    {
+                                        <span class="badge bg-success">✓</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">✗</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>TaxInvoices</td>
+                                <td><strong>@Model.TaxInvoicesCount</strong>건</td>
+                                <td>
+                                    @if (Model.TaxInvoicesTableExists)
+                                    {
+                                        <span class="badge bg-success">✓</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">✗</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Payments</td>
+                                <td><strong>@Model.PaymentsCount</strong>건</td>
+                                <td>
+                                    @if (Model.PaymentsTableExists)
+                                    {
+                                        <span class="badge bg-success">✓</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">✗</span>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 매출 확정 가능 주문서 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> 매출 확정 대상</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>상태</th>
+                                <th>주문서 수</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-success">
+                                <td>완료 (매출 미확정)</td>
+                                <td><strong>@Model.CompletedOrdersCount</strong>건</td>
+                            </tr>
+                            <tr class="table-info">
+                                <td>매출 확정 완료</td>
+                                <td><strong>@Model.SalesClosedOrdersCount</strong>건</td>
+                            </tr>
+                            <tr>
+                                <td>진행 중</td>
+                                <td><strong>@Model.InProgressOrdersCount</strong>건</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    @if (Model.CompletedOrdersCount > 0)
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>@(Model.CompletedOrdersCount)건</strong>의 주문서가 매출 확정 대기 중입니다.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary">
+                            매출 확정 대기 중인 주문서가 없습니다.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- 완료된 주문서 상세 목록 -->
+        @if (Model.CompletedOrders.Any())
+        {
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> 매출 확정 대기 주문서 목록</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>주문번호</th>
+                                        <th>거래처</th>
+                                        <th>생성일</th>
+                                        <th>완료일</th>
+                                        <th>상태</th>
+                                        <th>매출 확정</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.CompletedOrders)
+                                    {
+                                        <tr>
+                                            <td><strong>@order.OrderNumber</strong></td>
+                                            <td>@order.ClientName</td>
+                                            <td>@order.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                            <td>@order.UpdatedAt.ToString("yyyy-MM-dd")</td>
+                                            <td><span class="badge bg-success">@order.Status</span></td>
+                                            <td>
+                                                @if (order.IsSalesClosed)
+                                                {
+                                                    <span class="badge bg-primary">확정 완료</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">대기 중</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
